@@ -28,9 +28,10 @@ npm install uql-orm
 
 | Feature | **UQL** | Others |
 | :--- | :--- | :--- |
+| **Syntax** | **Serializable JSON**: Pure data, perfect for APIs/Websockets. | Method-Chaining: Hard to transport over the wire. |
+| **Simplicity** | **Pure TypeScript**: No codegen, no custom DSL, no build-step friction. | High: Requires codegen, proprietary DSLs, or extra build steps. |
 | **API** | **Unified & Intuitive**: Same syntax for SQL & NoSQL. | Fragmented: SQL and Mongo feel like different worlds. |
 | **Intelligence** | **Deep Auto-Completion**: IDE-powered inference for relations & operators at any depth. | Surface-level: Often loses types in complex joins. |
-| **Syntax** | **Serializable JSON**: Pure data, perfect for APIs/Websockets. | Method-Chaining: Hard to transport over the wire. |
 | **Efficiency** | **Sticky Connections**: [Measured at 3.9M+ ops/s](/comparison#performance). | Heavy: Often generates "SQL Soup" that's hard to debug. |
 
 > See also: [Full 2026 comparison →](/comparison) · [In Search of the Fastest TypeScript ORM →](/blog/in-search-of-the-fastest-typescript-orm) · [Benchmark Repo (GitHub) →](https://github.com/rogerpadilla/ts-orm-benchmark)
