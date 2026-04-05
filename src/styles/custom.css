@@ -4,14 +4,32 @@
    ========================================================================== */
 
 /* ── 1. Color Palette & Typography ── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 :root {
     --sl-color-accent-low: #0f3854;
-    --sl-color-accent: #3282b8;
+    --sl-color-accent: #3282b5;
     --sl-color-accent-high: #b1d4e0;
     --sl-color-bg: #f2f6f5;
+    
+    /* Subtle atmosphere pattern/gradient */
+    --sl-bg-pattern: radial-gradient(at 0% 0%, rgba(50, 130, 184, 0.05) 0, transparent 50%), 
+                     radial-gradient(at 100% 100%, rgba(177, 212, 224, 0.05) 0, transparent 50%);
 
     /* Premium typography */
     --sl-font-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
+    --sl-font-sans: 'Plus Jakarta Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--sl-font-sans);
+    letter-spacing: -0.02em;
+}
+
+body {
+    font-family: var(--sl-font-sans);
+    background-image: var(--sl-bg-pattern);
+    background-attachment: fixed;
 }
 
 :root[data-theme='dark'] {
@@ -75,6 +93,30 @@ button {
     transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
+/* Motion Implementation: Intentional presence and hierarchy */
+.hero h1, 
+.hero p, 
+.hero .actions {
+    animation: fade-in-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.hero h1 {
+    animation-delay: 0.1s;
+}
+
+.hero p {
+    animation-delay: 0.3s;
+}
+
+.hero .actions {
+    animation-delay: 0.5s;
+}
+
+/* Smooth entry for content sections */
+section, .sl-markdown-content > *:not(.hero) {
+    animation: fade-in-up 0.6s ease-out both;
+}
+
 /* Improve Code Blocks */
 .expressive-code pre {
     border: 1px solid var(--sl-color-gray-5);
@@ -123,6 +165,17 @@ button {
 }
 
 /* ── 5. Custom View Transitions ── */
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 .main-frame {
     view-transition-name: main-content;
@@ -199,6 +252,9 @@ button {
  */
 .hero {
     padding-block: 2rem 1rem !important;
+    /* Add a subtle background to the hero to make it a dominant plane */
+    background-color: color-mix(in srgb, var(--sl-color-accent), 2% !important);
+    border-radius: 0 0 2rem 2rem;
 }
 
 /* Scale hero logo on tablet — Starlight uses width-based sizing with `height: auto` */
