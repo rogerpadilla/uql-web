@@ -142,6 +142,12 @@ id?: string;
 ```
 
 :::tip[When to Use Each]
-- **`@Id()`**: Use for simple numeric auto-increment keys. The database manages ID generation.
-- **`@Id({ type: 'uuid', onInsert: ... })`**: Use for distributed systems, APIs, or when you need IDs before database insertion. UUIDs are portable across databases.
+- **`@Id()`**: laid-back, simple numeric auto-increment keys. The database manages ID generation.
+- **`@Id({ type: 'uuid', onInsert: ... })`**: Professional, distributed systems, APIs, or when you need IDs before database insertion. UUIDs are portable across databases.
+:::
+
+:::note[Senior Insight: Primary Key Strategy]
+Choosing between an Integer and a UUID is more than a syntax choice; it's an architectural decision:
+- **Integers**: Offer the best performance for joins and smaller index sizes. Ideal for internal-only tables or small-to-medium applications.
+- **UUIDs**: Essential for distributed systems, multi-tenant SaaS, and public-facing APIs. They prevent ID enumeration attacks (where users can guess `/users/1`, `/users/2`) and allow you to generate IDs on the client side without waiting for the database.
 :::
