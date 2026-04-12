@@ -6,22 +6,27 @@ sidebar:
 description: This tutorial explains how to use relations in the queries with the UQL orm.
 ---
 
+:::tip[Shape (0.8.4+)]
+UQL v0.8.4 introduced a clear separation between **scalars** and **relations**:
+- **`$select` / `$exclude`**: Only for local scalar columns (strings, numbers, dates, JSONB).
+- **`$populate`**: Only for related entity graphs.
+:::
+
 ## Querying relations
 
 UQL's query syntax is context-aware. When you query a relation, the available fields and operators are automatically suggested and validated based on that related entity.
 
-### Basic Selection
+### Basic Population
 
-You can select specific fields from a related entity using a nested object.
+You can load a relation and select its specific fields using `$populate`.
 
 ```ts title="You write"
 import { User } from './shared/models/index.js';
 
 const users = await querier.findMany(User, {
-  $select: {
-    id: true,
-    name: true,
-    profile: { $select: { picture: true } } // Select specific fields from a 1-1 relation
+  $select: { id: true, name: true },
+  $populate: { 
+    profile: { $select: { picture: true } } // Load specific fields from a 1-1 relation
   },
   $where: {
     email: { $iincludes: '@example.com' }
@@ -32,23 +37,22 @@ const users = await querier.findMany(User, {
 ```sql title="Generated SQL (PostgreSQL)"
 -- Main query with LEFT JOIN for OneToOne relation
 SELECT "User"."id", "User"."name",
-       "profile"."picture" "profile.picture"
+       "profile"."picture" "profile.picture" -- Prefixed alias for unflattening
 FROM "User"
-LEFT JOIN "Profile" "profile" ON "profile"."userId" = "User"."id"
+LEFT JOIN "Profile" "profile" ON "profile"."userId" = "User"."id" AND "profile"."deletedAt" IS NULL
 WHERE "User"."email" ILIKE '%@example.com%'
 ```
 
 ### Advanced: Deep Selection & Mandatory Relations
 
-Use `$required: true` to enforce an `INNER JOIN` (by default UQL uses `LEFT JOIN` for nullable relations).
+Use `$required: true` inside a `$populate` block to enforce an `INNER JOIN` (by default UQL uses `LEFT JOIN`).
 
 ```ts title="You write"
 import { User } from './shared/models/index.js';
 
 const latestUsersWithProfiles = await querier.findOne(User, {
-  $select: {
-    id: true,
-    name: true,
+  $select: { id: true, name: true },
+  $populate: {
     profile: {
       $select: { picture: true, bio: true },
       $where: { bio: { $ne: null } },
@@ -65,22 +69,21 @@ SELECT "User"."id", "User"."name",
        "profile"."picture" "profile.picture", "profile"."bio" "profile.bio"
 FROM "User"
 INNER JOIN "Profile" "profile" ON "profile"."userId" = "User"."id"
-  AND "profile"."bio" IS NOT NULL
+  AND "profile"."bio" IS NOT NULL AND "profile"."deletedAt" IS NULL
 ORDER BY "User"."createdAt" DESC
 LIMIT 1
 ```
 
 ### Filtering on Related Collections
 
-You can filter and sort when querying collections (One-to-Many or Many-to-Many).
+You can filter and sort when populating collections (One-to-Many or Many-to-Many).
 
 ```ts title="You write"
 import { User } from './shared/models/index.js';
 
 const authorsWithPopularPosts = await querier.findMany(User, {
-  $select: {
-    id: true,
-    name: true,
+  $select: { id: true, name: true },
+  $populate: {
     posts: {
       $select: { title: true, createdAt: true },
       $where: { title: { $iincludes: 'typescript' } },
@@ -128,8 +131,8 @@ const items = await querier.findMany(Item, {
 ```sql title="Generated SQL (PostgreSQL)"
 SELECT "Item"."id", "Item"."name"
 FROM "Item"
-LEFT JOIN "Tax" "tax" ON "tax"."id" = "Item"."taxId"
-LEFT JOIN "MeasureUnit" "measureUnit" ON "measureUnit"."id" = "Item"."measureUnitId"
+LEFT JOIN "Tax" "tax" ON "tax"."id" = "Item"."taxId" AND "tax"."deletedAt" IS NULL
+LEFT JOIN "MeasureUnit" "measureUnit" ON "measureUnit"."id" = "Item"."measureUnitId" AND "measureUnit"."deletedAt" IS NULL
 ORDER BY "tax"."name", "measureUnit"."name", "Item"."createdAt" DESC
 ```
 
@@ -154,9 +157,9 @@ WHERE EXISTS (
   SELECT 1 FROM "PostTag"
   WHERE "PostTag"."postId" = "Post"."id"
     AND "PostTag"."tagId" IN (
-      SELECT "Tag"."id" FROM "Tag" WHERE "Tag"."name" = $1
+      SELECT "Tag"."id" FROM "Tag" WHERE "Tag"."name" = $1 AND "Tag"."deletedAt" IS NULL
     )
-)
+) AND "Post"."deletedAt" IS NULL
 ```
 
 #### OneToMany
@@ -174,7 +177,8 @@ WHERE EXISTS (
   SELECT 1 FROM "Post"
   WHERE "Post"."authorId" = "User"."id"
     AND "Post"."title" ILIKE '%typescript%'
-)
+    AND "Post"."deletedAt" IS NULL
+) AND "User"."deletedAt" IS NULL
 ```
 
 :::tip[Combining with Other Filters]

@@ -7,7 +7,7 @@ For large result sets that exceed available memory, UQL provides `findManyStream
 
 ## Basic Usage
 
-The `findManyStream` method accepts the same query object as `findMany`.
+The `findManyStream` method accepts the same **shape** of query object as `findMany`, but **not every `findMany` feature is available on the stream path** (see [Relations & streaming](#relations--streaming) below).
 
 ```ts
 const results = querier.findManyStream(User, {
@@ -20,6 +20,17 @@ for await (const user of results) {
   console.log(`Processing: ${user.email}`);
 }
 ```
+
+## Relations & streaming
+
+UQL keeps streaming memory-friendly by not running the same follow-up work as `findMany` for every backend.
+
+| Backend | Joinable relations (e.g. many-to-one, one-to-one) | To-many (one-to-many, many-to-many) |
+| :--- | :--- | :--- |
+| **SQL** (`AbstractSqlQuerier`) | Still emitted in the streamed SQL (joins + projected columns). | **Not supported** — To-many relations are filled as a post-processing step which is incompatible with row-by-row streaming. Requesting these keys in `$select` or `$populate` **throws a `TypeError`**. |
+| **MongoDB** (`MongodbQuerier`) | **Not supported** — MongoDB streams use a plain `find` cursor which cannot efficiently load UQL's aggregation-based relations. Requesting any relation keys in `$select` or `$populate` **throws a `TypeError`**. | Same as joinable. |
+
+For relation-heavy reads, use [`findMany`](/querying/querier) with [`$populate`](/querying/relations).
 
 ## Why use Streaming?
 

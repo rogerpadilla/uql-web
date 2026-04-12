@@ -89,6 +89,8 @@ Starting with `0.7.0`, the middleware automatically detects the primary key defi
 
 :::tip
 All `GET` endpoints support UQL's powerful [Serializable JSON Query Syntax](/querying/querier), allowing your frontend to perform complex joins and filters directly via URL parameters.
+
+When using `parseQuery` from `uql-orm/express`, JSON-shaped fields **`$select`**, **`$populate`**, **`$exclude`**, **`$where`**, and **`$sort`** can be sent as **strings** (stringified JSON) in the query string; the middleware parses them into objects on `req.query`.
 :::
 
 

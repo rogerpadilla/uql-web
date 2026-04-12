@@ -19,7 +19,9 @@ import { User } from './shared/models/index.js';
 
 const users = await pool.withQuerier(async (querier) => 
   querier.findMany(User, {
-    $select: { id: true, name: true },
+    $select: { id: true, name: true },  // Whitelist scalar fields
+    $exclude: { password: true },       // Blacklist scalar fields
+    $populate: { profile: true },       // Load relations
     $where: { 
       $or: [
         { name: 'roger' }, 
@@ -34,9 +36,14 @@ const users = await pool.withQuerier(async (querier) =>
 ```
 
 ```sql title="Generated SQL (PostgreSQL)"
-SELECT "id", "name" FROM "User"
-WHERE "name" = $1 OR "creatorId" = $2
-ORDER BY "createdAt" DESC
+-- Scalar projection combining $select and $exclude
+SELECT "User"."id", "User"."name",
+       -- $populate fields from joined relations
+       "profile"."id" "profile.id", "profile"."picture" "profile.picture"
+FROM "User"
+LEFT JOIN "Profile" "profile" ON "profile"."userId" = "User"."id"
+WHERE "User"."name" = $1 OR "User"."creatorId" = $2
+ORDER BY "User"."createdAt" DESC
 LIMIT 10
 ```
 
@@ -84,7 +91,7 @@ try {
 | Method                                      | Description                                    |
 | :------------------------------------------ | :--------------------------------------------- |
 | `findMany(Entity, query)`                   | Find multiple records matching the query.      |
-| `findManyStream(Entity, query)`             | [Stream records](/querying/streaming) as an `AsyncIterable` for memory-efficient row-by-row iteration. |
+| `findManyStream(Entity, query)`             | [Stream records](/querying/streaming) as an `AsyncIterable` for memory-efficient row-by-row iteration. Relation loading rules differ from `findMany` — see [streaming & relations](/querying/streaming#relations--streaming). |
 | `findManyAndCount(Entity, query)`           | Find records and return `[rows, totalCount]`.  |
 | `findOne(Entity, query)`                    | Find a single record matching the query.       |
 | `findOneById(Entity, id, query?)`           | Find a record by its primary key.              |
