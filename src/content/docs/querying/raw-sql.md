@@ -2,9 +2,6 @@
 title: Raw SQL
 sidebar:
   order: 109
-  badge:
-    text: New
-    variant: success
 description: Execute vanilla SQL queries with type safety using all() and run().
 ---
 
