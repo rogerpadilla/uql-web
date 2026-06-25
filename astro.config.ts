@@ -41,7 +41,29 @@ const config: AstroUserConfig = {
           tag: 'meta',
           attrs: {
             property: 'og:image',
-            content: 'https://uql-orm.dev/logo.svg',
+            content: 'https://uql-orm.dev/og-image.png',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image:width', content: '1200' },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image:height', content: '630' },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:alt',
+            content: 'UQL — a JSON-native ORM for TypeScript',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:image',
+            content: 'https://uql-orm.dev/og-image.png',
           },
         },
       ],

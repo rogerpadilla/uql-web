@@ -1,8 +1,69 @@
 ---
-import StarlightHead from '@astrojs/starlight/components/Head.astro';
 import { ClientRouter } from 'astro:transitions';
+import StarlightHead from '@astrojs/starlight/components/Head.astro';
+import { githubRepo, projectDescription } from '../constants';
+
+const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://uql-orm.dev';
+const { entry } = Astro.locals.starlightRoute;
+const { data } = entry;
+
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isHome = path === '/';
+const isBlogPost = path.startsWith('/blog/') && path !== '/blog';
+
+const canonical = new URL(Astro.url.pathname, `${site}/`).href;
+const description = data.description ?? data.hero?.tagline ?? projectDescription;
+const ogImage = `${site}/og-image.png`;
+
+// Build the JSON-LD graph appropriate to the page type. Search engines use this
+// to render rich results and to understand that UQL is an open-source library.
+const schemas: Record<string, unknown>[] = [];
+
+if (isHome) {
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'UQL',
+    url: `${site}/`,
+    description: projectDescription,
+  });
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'UQL',
+    description: projectDescription,
+    url: `${site}/`,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Cross-platform',
+    programmingLanguage: 'TypeScript',
+    license: 'https://opensource.org/licenses/MIT',
+    codeRepository: githubRepo,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    author: { '@type': 'Person', name: 'Roger Padilla' },
+  });
+} else if (isBlogPost) {
+  const coverRaw = (data as { cover?: { image?: string | { src?: string } } }).cover?.image;
+  const coverSrc = typeof coverRaw === 'string' ? coverRaw : coverRaw?.src;
+  const cover = coverSrc ? new URL(coverSrc, `${site}/`).href : ogImage;
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: data.title,
+    description,
+    image: cover,
+    url: canonical,
+    datePublished: data.date ? new Date(data.date).toISOString() : undefined,
+    author: { '@type': 'Person', name: 'Roger Padilla', url: 'https://github.com/rogerpadilla' },
+    publisher: { '@type': 'Organization', name: 'UQL', url: `${site}/` },
+    mainEntityOfPage: canonical,
+  });
+}
 ---
 
 <StarlightHead {...Astro.props} />
 <ClientRouter />
-
+{
+  schemas.map((schema) => (
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+  ))
+}
