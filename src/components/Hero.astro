@@ -23,7 +23,7 @@ const heroQuery = `await querier.findMany(User, {
 	</div>
 	<div class="sl-flex stack">
 		<div class="sl-flex copy">
-			<h1 id={PAGE_TITLE_ID} data-page-title set:html={title} />
+			<h1 id={PAGE_TITLE_ID} class="font-display" data-page-title set:html={title} />
 			{tagline && <div class="tagline" set:html={tagline} />}
 		</div>
 		{
@@ -50,11 +50,8 @@ const heroQuery = `await querier.findMany(User, {
 			grid-template-columns: 100%;
 			align-items: center;
 			gap: 1rem;
-			/* Trim Starlight's tall default hero padding; a subtle accent plane
-			   gives the hero a distinct surface. */
+			/* Trim Starlight's tall default hero padding. */
 			padding-block: 2rem 1rem;
-			background-color: color-mix(in srgb, var(--sl-color-accent) 4%, var(--sl-color-bg));
-			border-radius: 0 0 2rem 2rem;
 		}
 
 		.hero-code {
@@ -83,9 +80,9 @@ const heroQuery = `await querier.findMany(User, {
 		}
 
 		h1 {
-			font-size: clamp(var(--sl-text-3xl), calc(0.25rem + 5vw), var(--sl-text-6xl));
-			line-height: var(--sl-line-height-headings);
-			font-weight: 600;
+			/* Larger than the sans default: script glyphs read smaller per em. */
+			font-size: clamp(var(--sl-text-4xl), calc(0.5rem + 9vw), 7rem);
+			line-height: 1.1;
 			color: var(--sl-color-white);
 		}
 
