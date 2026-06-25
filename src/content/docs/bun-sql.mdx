@@ -56,7 +56,7 @@ const users = await pool.withQuerier(async (querier) =>
 
 ## 3. SQLite with Bun
 
-For SQLite, use a `sqlite:` / `file:` URL, `:memory:`, or a `filename` option—whatever your Bun version accepts in `SQL.Options`.
+For SQLite, use a `sqlite:` / `file:` URL, `:memory:`, or a `filename` option — whatever your Bun version accepts in `SQL.Options`.
 
 ```ts
 const pool = new BunSqlQuerierPool({ url: 'sqlite://:memory:' });
@@ -83,7 +83,7 @@ Bun talks to **CockroachDB** through its PostgreSQL wire adapter.
 
 ### PostgreSQL dialect
 
-For `postgres://` / `postgresql://` URLs, UQL uses **`BunSqlPostgresDialect`**, a Postgres AST tuned for Bun’s parameter binding (not the same as **`PgDialect`** for node `pg`). You do not configure this explicitly—the pool infers it from `SQL.Options`.
+For `postgres://` / `postgresql://` URLs, UQL uses **`BunSqlPostgresDialect`**, a Postgres AST tuned for Bun’s parameter binding (not the same as **`PgDialect`** for node `pg`). You do not configure this explicitly; the pool infers it from `SQL.Options`.
 
 ---
 

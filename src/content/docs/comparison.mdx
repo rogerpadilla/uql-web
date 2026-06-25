@@ -97,7 +97,7 @@ export class User {
 
 ## Semantic Search
 
-AI and RAG (Retrieval-Augmented Generation) have made vector similarity search a mainstream requirement. The goal is ranking results by meaning, not just keywords, without losing the type-safe experience we love in ORMs.
+AI and RAG (Retrieval-Augmented Generation) have made vector similarity search a mainstream requirement. You want to rank results by meaning, not just keywords — without dropping back to raw SQL and losing type safety.
 
 ```ts title="Drizzle"
 import { sql } from 'drizzle-orm';
@@ -157,7 +157,7 @@ const results = await querier.findMany(Item, {
 
 ## Find — Selection & Filtering
 
-Traditional querying still forms the backbone of any application. The goal is making complex filters readable and easily serializable for the network.
+Traditional querying still forms the backbone of any application. Complex filters should stay readable, and ideally serialize straight to the network without a translation layer.
 
 ```ts title="Drizzle"
 import { eq, desc } from 'drizzle-orm';
@@ -594,7 +594,7 @@ const results = await http.findMany(User, { $where: { status: 'active' } });
 
 ## Migrations & Synchronization
 
-Keeping your database schema in sync with your code is one of the most stressful parts of development. The goal is "Zero Drift"—ensuring what's in your TypeScript classes is exactly what's in your production database, without manual SQL headaches.
+Keeping your database schema in sync with your code is one of the most stressful parts of development. What you want is zero drift: what's in your TypeScript classes is exactly what's in production, without hand-written SQL.
 
 ```ts title="Drizzle"
 // 1. You edit your TS schema
@@ -682,7 +682,7 @@ for await (const user of results) {
 }
 ```
 
-**In practice:** Processing millions of rows requires native cursors to keep memory stable. MikroORM and UQL provide consistent `AsyncIterable` support across all drivers—including MongoDB—replacing complex event-emitters with clean `for await` loops.
+**In practice:** Processing millions of rows requires native cursors to keep memory stable. MikroORM and UQL provide consistent `AsyncIterable` support across all drivers — including MongoDB — replacing event-emitters with clean `for await` loops.
 
 ---
 
