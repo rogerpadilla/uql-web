@@ -10,7 +10,7 @@
      - Patrick Hand: handwritten display/wordmark (--uql-font-display)
    To swap the display font, change the `&family=` here and the var below.
    For a wordmark-only build, append `&text=UQL` to the display family to subset. */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Yellowtail&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Pacifico&display=swap');
 
 :root {
     --sl-color-accent-low: #0f3854;
@@ -28,7 +28,7 @@
     /* Handwritten display font for the wordmark / accent text.
        Single source of truth — change the family + weight to swap it everywhere.
        (Weight is paired so single-weight scripts never get faux-bolded.) */
-    --uql-font-display: 'Yellowtail', cursive;
+    --uql-font-display: 'Pacifico', cursive;
     --uql-font-display-weight: 400;
 }
 
