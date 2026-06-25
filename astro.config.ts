@@ -95,6 +95,10 @@ const config: AstroUserConfig = {
               link: '/getting-started',
             },
             {
+              label: 'FAQ',
+              link: '/faq',
+            },
+            {
               label: 'AI & Semantic Search',
               link: '/ai-semantic-search',
             },
@@ -117,6 +121,7 @@ const config: AstroUserConfig = {
             { label: 'Lifecycle Hooks', link: '/entities/lifecycle-hooks' },
             { label: 'Inheritance', link: '/entities/inheritance' },
             { label: 'Indexes', link: '/entities/indexes' },
+            { label: 'Imperative API', link: '/entities/imperative' },
           ],
         },
         {
