@@ -7,10 +7,11 @@
 /* All web fonts in a single request — Google Fonts supports multiple `&family=`
    params, so this is one round-trip instead of one per font:
      - Plus Jakarta Sans: body + headings (--sl-font-sans)
-     - Patrick Hand: handwritten display/wordmark (--uql-font-display)
+     - Comfortaa: display/wordmark (--uql-font-display)
+     - JetBrains Mono: code blocks + inline code (--sl-font-mono)
    To swap the display font, change the `&family=` here and the var below.
    For a wordmark-only build, append `&text=UQL` to the display family to subset. */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Comfortaa:wght@300..700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
     --sl-color-accent-low: #0f3854;
@@ -28,8 +29,8 @@
     /* Handwritten display font for the wordmark / accent text.
        Single source of truth — change the family + weight to swap it everywhere.
        (Weight is paired so single-weight scripts never get faux-bolded.) */
-    --uql-font-display: 'Pacifico', cursive;
-    --uql-font-display-weight: 400;
+    --uql-font-display: 'Comfortaa', sans-serif;
+    --uql-font-display-weight: 300;
 }
 
 h1, h2, h3, h4, h5, h6 {
