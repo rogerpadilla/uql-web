@@ -2,9 +2,6 @@
 title: Aggregate Queries
 sidebar:
   order: 107
-  badge:
-    text: New
-    variant: success
 description: Use GROUP BY, HAVING, COUNT, SUM, AVG, MIN, MAX, and DISTINCT with UQL's aggregate API.
 ---
 
