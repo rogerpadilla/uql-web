@@ -96,11 +96,7 @@ const config: AstroUserConfig = {
               link: '/getting-started',
             },
             {
-              label: 'FAQ',
-              link: '/faq',
-            },
-            {
-              label: 'AI & Semantic Search',
+              label: 'AI & RAG',
               link: '/ai-semantic-search',
             },
             {
@@ -146,6 +142,10 @@ const config: AstroUserConfig = {
             { label: 'Express', link: '/extensions-express' },
             { label: 'Browser', link: '/extensions-browser' },
           ],
+        },
+        {
+          label: 'FAQ',
+          link: '/faq',
         },
         {
           label: 'Blog',
