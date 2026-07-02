@@ -98,6 +98,7 @@ const config: AstroUserConfig = {
             {
               label: 'AI & RAG',
               link: '/ai-semantic-search',
+              badge: { text: 'New', variant: 'success' },
             },
             {
               label: 'Comparison',
