@@ -12,7 +12,8 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 With UQL, semantic search is part of your normal ORM workflow. You can store embeddings and query by meaning without adding a separate search stack.
 
 ```mermaid
-graph LR
+%%{init: {'flowchart': {'htmlLabels': true, 'curve': 'basis', 'padding': 24}}}%%
+graph TD
     R[Raw Input] --> E[Embedding Model]
     E --> V[Vector Embedding]
     V --> Q[UQL $vector Query]
