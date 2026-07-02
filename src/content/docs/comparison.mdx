@@ -7,27 +7,9 @@ description: Side-by-side API comparison of UQL vs Prisma, Drizzle, TypeORM, and
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-**Disclosure:** This comparison is maintained by the UQL team. We include source links and fold in community corrections to keep the claims verifiable.
-
-This is an operation-by-operation code comparison of the leading TypeScript ORMs — actual API differences rather than checkmarks in a table — so you can pick the right tool for your architecture.
-
-:::note
-Every tool has its own technical philosophy and strengths. We aim for a balanced, code-first perspective. If you spot a 2026 technical inaccuracy, please [open an issue](https://github.com/rogerpadilla/uql/issues).
-:::
-
----
-
-## Community Updates (Mar, 2026) - from [this Reddit thread](https://www.reddit.com/r/javascript/comments/1rwm8sa/orm_comparison_2026/)
-
-- Updated MikroORM to v7-recommended `defineEntity` style in schema examples.
-- Updated database matrix: MikroORM Cloudflare D1 (experimental/plugin path), MikroORM Neon support, and Oracle coverage.
-- Added runtime-model comparison row: managed entities that require active ORM context (Unit of Work / Identity Map).
-
 ---
 
 ## Schema Definition
-
-The starting point for any project. How you model your data determines your daily workflow and IDE experience.
 
 ```ts title="Drizzle"
 import { pgTable, serial, varchar, integer } from 'drizzle-orm/pg-core';
@@ -97,8 +79,6 @@ export class User {
 
 ## Semantic Search
 
-AI and RAG (Retrieval-Augmented Generation) have made vector similarity search a mainstream requirement. You want to rank results by meaning, not just keywords — without dropping back to raw SQL and losing type safety.
-
 ```ts title="Drizzle"
 import { sql } from 'drizzle-orm';
 
@@ -140,7 +120,7 @@ const results = await querier.findMany(Item, {
 });
 ```
 
-**In practice:** Most ORMs treat vector similarity as an "edge case" requiring raw SQL and database-specific syntax (like `<->`). UQL handles it as a native, type-safe operator, allowing you to build AI features with the same database-agnostic code used for standard sorting.
+**In practice:** Most ORMs treat vector similarity as an "edge case" requiring raw SQL and database-specific syntax (like `<->`). UQL handles it as a native, type-safe operator.
 
 | Ability | **Drizzle** | **MikroORM** | **Prisma** | **TypeORM** | **UQL** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -149,15 +129,9 @@ const results = await querier.findMany(Item, {
 | Index Migration | ❌ | ❌ | ✅ | ❌ | ✅ |
 | JSON Path Vectors | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-:::note
-**Zero-Config Vectors**: UQL's migrator handles the heavy lifting, automatically creating database extensions (like `pgvector`) and managing complex index parameters such as HNSW's `m` and `ef_construction` without manual SQL.
-:::
-
 ---
 
 ## Find — Selection & Filtering
-
-Traditional querying still forms the backbone of any application. Complex filters should stay readable, and ideally serialize straight to the network without a translation layer.
 
 ```ts title="Drizzle"
 import { eq, desc } from 'drizzle-orm';
@@ -211,8 +185,6 @@ const results = await querier.findMany(User, {
 
 ## Querying — Relations
 
-Modern apps are deep. Managing nested data without "N+1" performance issues is essential for a smooth user experience.
-
 ```ts title="Drizzle"
 const results = await db.query.users.findMany({
   columns: { id: true, name: true },
@@ -264,8 +236,6 @@ const results = await querier.findMany(User, {
 ---
 
 ## Virtual Fields
-
-Defining calculated fields that aren't stored in the database. These are a lifesaver for computed UI data (like full names) or derived counts.
 
 ```ts title="Drizzle"
 const results = await db.select({
@@ -338,8 +308,6 @@ class User {
 
 ## Mutations
 
-The bread and butter of your API. The goal here is clarity: "Did it work, and what's the ID?"
-
 ```ts title="Drizzle"
 const [user] = await db.insert(users).values({ name: 'Lorem' }).returning();
 
@@ -397,8 +365,6 @@ await querier.deleteOneById(User, id);
 ---
 
 ## Soft Delete
-
-Safely "removing" data while keeping it in the database for recovery or audit trails.
 
 ```ts title="Drizzle"
 // No built-in soft delete. Requires manual filter management:
@@ -458,8 +424,6 @@ await querier.deleteOneById(User, id);
 
 ## Filtering — Comparison Operators
 
-Filtering data shouldn't require a manual or a degree in query DSLs. The most natural operators are the ones you can easily read and, ideally, serialize without extra work.
-
 ```ts title="Drizzle"
 import { gte, lte, ilike, notInArray, and } from 'drizzle-orm';
 
@@ -517,10 +481,6 @@ const results = await querier.findMany(User, {
 
 ## JSON / JSONB Operators (Practical Coverage)
 
-For teams building search-heavy or settings-heavy apps, JSON operator depth matters as much as plain scalar filtering.
-
-UQL currently provides the broadest **cross-dialect** JSON operator surface in this comparison. The focus is practical parity across PostgreSQL, MySQL, MariaDB, and SQLite using each database's native JSON functions/operators on modern maintained releases.
-
 | JSON capability | **Drizzle** | **MikroORM** | **Prisma** | **TypeORM** | **UQL** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | Nested / Dot-notation JSON filtering | ❌¹ | ✅⁴ | ✅³ | 🔌² | ✅ |
@@ -537,11 +497,6 @@ UQL currently provides the broadest **cross-dialect** JSON operator surface in t
 ³ Prisma advanced JSON filtering is available on selected connectors and has connector-specific limitations.
 ⁴ MikroORM provides a unified interface for querying JSON properties (via nested objects and `$elemMatch`) natively across SQL dialects, but relies on full object substitution rather than atomic diffing operators for JSON mutations.
 
-Snapshot references (verified Mar, 2026):
-- Drizzle JSON operator gap: [issue #1690](https://github.com/drizzle-team/drizzle-orm/issues/1690)
-- TypeORM JSON containment scope: [issue #11800](https://github.com/typeorm/typeorm/issues/11800)
-- Prisma JSON filtering docs: [Working with Json fields](https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/working-with-json-fields)
-
 </small>
 
 See [JSON / JSONB](/querying/json) for generated SQL examples and practical baseline dialect versions.
@@ -549,8 +504,6 @@ See [JSON / JSONB](/querying/json) for generated SQL examples and practical base
 ---
 
 ## Network Boundaries & APIs
-
-In a world of microservices and fullstack apps, your data shouldn't be trapped on the server. The "mental context switch" of mapping database results to JSON API responses is a significant source of developer toil.
 
 ```ts title="Drizzle"
 app.get('/api/users', async (req, res) => {
@@ -593,8 +546,6 @@ const results = await http.findMany(User, { $where: { status: 'active' } });
 ---
 
 ## Migrations & Synchronization
-
-Keeping your database schema in sync with your code is one of the most stressful parts of development. What you want is zero drift: what's in your TypeScript classes is exactly what's in production, without hand-written SQL.
 
 ```ts title="Drizzle"
 // 1. You edit your TS schema
@@ -640,8 +591,6 @@ npx uql-migrate up
 ---
 
 ## Streaming
-
-Iterating through massive result sets without causing "Out of Memory" (OOM) errors. This is crucial for reports, CSV exports, or AI indexing jobs.
 
 ```ts title="Drizzle"
 const stream = await db.select().from(users).iterator();
@@ -703,9 +652,6 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 | Lifecycle hooks | ❌ | ✅ | 🔌 | ✅ | ✅ |
 | Managed entities require active ORM context (Unit of Work / Identity Map) | ❌ | ✅ | ❌ | ❌ | ❌ |
 | N+1 prevention (automatic) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Reactive fields (auto-updated) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Test factories (built-in) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Tagged ids | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Auto REST API | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Browser querier | ❌ | ❌ | ❌ | ❌ | ✅ |
 | MongoDB support | ❌ | ✅ | ✅ | ✅ | ✅ |
@@ -783,110 +729,6 @@ UQL achieves this via **zero-allocation architecture** and pre-computed schema l
 :::
 
 <LinkCard title="Full Benchmark Analysis →" href="/blog/in-search-of-the-fastest-typescript-orm" description="Methodology, interactive charts, and reproduction instructions." />
-
----
-
-## Summary: Choosing the Right Tool
-
-There is no universal winner here. Pick based on your team's workflow, not just features.
-
-### Drizzle
-
-**When to use Drizzle**
-
-- You like staying close to SQL and keeping abstraction layers thin.
-- You care about explicit query composition and tight control over generated SQL.
-- You want a lightweight runtime with strong TypeScript ergonomics.
-- You are targeting modern SQL deployments, including edge-oriented setups.
-
-**When not to use Drizzle**
-
-- Day-to-day SQL-heavy development feels like overhead for your team.
-- You need richer ORM patterns such as unit-of-work and identity-map behavior.
-- You expect built-in soft delete behavior instead of manual filtering discipline.
-- You want first-party browser/server query transport primitives.
-
-### Kysely (Query Builder)
-
-**When to use Kysely**
-
-- You want pure, type-safe SQL composition.
-- You prefer explicit query control over ORM entity abstractions.
-- You want strong type safety while staying close to SQL concepts.
-- You do not need identity-map behavior, relation APIs, or ORM lifecycle hooks.
-
-**When not to use Kysely**
-
-- You need classic ORM features like entities, relations, and lifecycle hooks.
-- Your domain model depends on unit-of-work and identity-map patterns.
-- You expect metadata-driven ORM automation.
-- You want first-party fullstack query transport primitives out of the box.
-
-### MikroORM
-
-**When to use MikroORM**
-
-- Your domain layer benefits from unit-of-work and identity-map patterns.
-- You want entity-first modeling with strong relation handling.
-- You prefer a consistent TypeScript-first architecture.
-- You need one ORM across SQL and MongoDB with similar mental models.
-
-**When not to use MikroORM**
-
-- You do not need Unit of Work/Identity Map complexity and prefer detached/plain results.
-- Ecosystem size and hiring familiarity are top priorities.
-- You prefer a direct SQL/query-builder style over richer ORM abstractions.
-- You need first-party auto-REST or browser-querier primitives.
-
-### Prisma
-
-**When to use Prisma**
-
-- You want a full product experience: mature ecosystem, Prisma Studio, and managed add-ons.
-- You prefer a predictable migration workflow centered on Prisma Migrate.
-- Your team values a polished DX with strong docs and conventions.
-- You need broad SQL support with a stable day-to-day workflow.
-
-**When not to use Prisma**
-
-- You do not want to learn or maintain a separate `.prisma` DSL.
-- You want to avoid generated client code and generation steps in CI/build.
-- You need native `AsyncIterable` streaming instead of manual cursor pagination.
-- You rely heavily on driver-specific SQL and want first-class SQL composition.
-
-### TypeORM
-
-**When to use TypeORM**
-
-- You want a long-established ORM with wide database support.
-- Your team is comfortable with decorators, entities, and repository patterns.
-- You need lifecycle hooks and traditional enterprise ORM capabilities.
-- You come from Java/C# ORM mental models and want familiar patterns.
-
-**When not to use TypeORM**
-
-- You want a modern JSON-serializable query object style by default.
-- You need stronger first-party support for semantic/vector workflows.
-- You prefer a smaller, stricter API surface with fewer legacy patterns.
-- You want built-in browser-to-server querying bridges.
-
-### UQL
-
-**When to use UQL**
-
-- A JSON-query model that works across backend and browser boundaries is important to you.
-- You want lean runtime with strong edge/runtime compatibility as a core requirement.
-- You want entity-first migrations and high SQL generation performance.
-- You are building AI/RAG-heavy apps and want native support from your ORM.
-
-**When not to use UQL**
-
-- You need MSSQL support today.
-- You prioritize ecosystem maturity and third-party integrations over newer architecture.
-- You require tooling like Prisma Studio as a core workflow.
-- You need maximum community mindshare for immediate hiring and onboarding.
-
-<LinkCard title="Read the Full ORM Analysis →" href="/blog/in-search-of-the-perfect-orm" description="A detailed evaluation of the top TypeScript ORMs and their design trade-offs." />
 
 ---
 
