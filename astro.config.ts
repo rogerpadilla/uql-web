@@ -109,7 +109,7 @@ const config: AstroUserConfig = {
             },
             {
               label: 'Benchmark',
-              link: '/comparison#performance',
+              link: '/benchmark',
             },
           ],
         },

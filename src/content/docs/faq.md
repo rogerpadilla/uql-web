@@ -14,7 +14,7 @@ UQL is a JSON-native ORM for TypeScript that offers:
 - **Serializable queries**: plain JSON objects you can cache, send over HTTP, or store
 - **No codegen**: your TypeScript classes are the schema, no build step needed
 - **One API everywhere**: the same syntax works on PostgreSQL, MySQL, MongoDB, SQLite, and edge runtimes
-- **Fast SQL generation**: fastest in all 8 categories of our [open benchmark](/comparison#performance)
+- **Fast SQL generation**: fastest in all 8 categories of our [open benchmark](/benchmark)
 
 ### How is UQL different from Prisma, Drizzle, or TypeORM?
 
@@ -207,7 +207,7 @@ Works on PostgreSQL (pgvector), CockroachDB, MariaDB, SQLite (sqlite-vec), and M
 
 ### What's the performance like?
 
-In our [open benchmark](/comparison#performance) of SQL-generation speed, UQL is the fastest entry in all 8 query categories, on average ~2.1× faster than the runner-up. Two design choices drive this:
+In our [open benchmark](/benchmark) of SQL-generation speed, UQL is the fastest entry in all 8 query categories, on average ~2.1× faster than the runner-up. Two design choices drive this:
 - Schema metadata (tables, columns, relations) is pre-computed once at startup
 - SQL is written directly into a string buffer, avoiding intermediate objects
 

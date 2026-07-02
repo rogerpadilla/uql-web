@@ -5,7 +5,7 @@ sidebar:
 description: Side-by-side API comparison of UQL vs Prisma, Drizzle, TypeORM, and MikroORM — with actual code for every common operation.
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { LinkCard } from '@astrojs/starlight/components';
 
 ---
 
@@ -689,44 +689,11 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 
 ---
 
-## Performance
+## Benchmark
 
-Our [open-source benchmark](/blog/in-search-of-the-fastest-typescript-orm) measures **pure SQL generation speed**, with no database I/O, to isolate the overhead each tool adds per query. You can explore the [interactive charts](https://rogerpadilla.github.io/ts-orm-benchmark/chart.html).
+In our [open benchmark](/benchmark) of pure SQL-generation speed, UQL is the fastest entry in all 8 query categories, on average **~2.1x** faster than the next fastest tool, including the standalone query builders Knex and Kysely.
 
-:::tip
-**Query Builder vs. ORM**: The benchmark includes Knex and Kysely (pure query builders) to show that UQL is faster even than tools without the overhead of entities and relations.
-:::
-
-Across these operations, UQL is on average **~2.1x** faster than the next fastest tool (July 2026 run: TypeORM 1.0, MikroORM 7.1, UQL 0.9).
-
-| Operation group | Avg advantage (vs. next fastest) |
-| :--- | ---: |
-| Reads (`SELECT*`, sort/limit, `AGGREGATE`) | **~2.3x** |
-| Writes (`INSERT/UPDATE/UPSERT/DELETE`) | **~1.9x** |
-
-### Reads (SELECT-heavy)
-
-| Operation | Next fastest | UQL | Advantage |
-| :--- | :--- | ---: | ---: |
-| SELECT (complex) | Knex (247K) | 612K ops/s | **2.5x** |
-| SELECT (1 field) | Sequelize (3,052K) | 3,472K ops/s | **1.1x** |
-| SELECT + SORT + LIMIT | Knex (614K) | 1,190K ops/s | **1.9x** |
-| AGGREGATE | Sequelize (410K) | 1,431K ops/s | **3.5x** |
-
-### Writes (mutations)
-
-| Operation | Next fastest | UQL | Advantage |
-| :--- | :--- | ---: | ---: |
-| INSERT (10 rows) | Knex (477K) | 565K ops/s | **1.2x** |
-| UPDATE | Kysely (812K) | 1,772K ops/s | **2.2x** |
-| UPSERT | Knex (443K) | 656K ops/s | **1.5x** |
-| DELETE | Sequelize (1,361K) | 3,525K ops/s | **2.6x** |
-
-:::note
-UQL achieves this by pre-computing schema lookups at startup and writing SQL directly into a string buffer instead of building intermediate objects. The benchmark is fully [open-source](https://github.com/rogerpadilla/ts-orm-benchmark).
-:::
-
-<LinkCard title="Full Benchmark Analysis →" href="/blog/in-search-of-the-fastest-typescript-orm" description="Methodology, interactive charts, and reproduction instructions." />
+<LinkCard title="Full Benchmark Results →" href="/benchmark" description="Complete result tables, methodology, interactive charts, and reproduction instructions." />
 
 ---
 
