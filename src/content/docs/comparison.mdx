@@ -80,11 +80,11 @@ export class User {
 ## Semantic Search
 
 ```ts title="Drizzle"
-import { sql } from 'drizzle-orm';
+import { cosineDistance } from 'drizzle-orm';
 
 const results = await db.select()
   .from(items)
-  .orderBy(sql`embedding <-> ${queryVector}::vector`)
+  .orderBy(cosineDistance(items.embedding, queryVector))
   .limit(10);
 ```
 
@@ -120,14 +120,20 @@ const results = await querier.findMany(Item, {
 });
 ```
 
-**In practice:** Most ORMs treat vector similarity as an "edge case" requiring raw SQL and database-specific syntax (like `<->`). UQL handles it as a native, type-safe operator.
+**In practice:** Drizzle ships native pgvector helpers (`cosineDistance`, `l2Distance`) for PostgreSQL. The other ORMs treat vector similarity as an "edge case" requiring raw SQL and database-specific syntax (like `<->`). UQL handles it as a native, type-safe operator across dialects.
 
 | Ability | **Drizzle** | **MikroORM** | **Prisma** | **TypeORM** | **UQL** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| Native Vector Operator | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Native Vector Operator | ✅¹ | ❌ | ❌ | ❌ | ✅ |
 | Multi-Dialect Support | 🔌 | ❌ | 🔌 | 🔌 | ✅ |
 | Index Migration | ❌ | ❌ | ✅ | ❌ | ✅ |
 | JSON Path Vectors | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+<small>
+
+¹ PostgreSQL (pgvector) only.
+
+</small>
 
 ---
 
@@ -411,7 +417,7 @@ await repo.softDelete(id);
 @Entity({ softDelete: true })
 export class User {
   @Id() id: number;
-  @Field({ onDelete: 'soft' }) deletedAt: Date;
+  @Field({ onDelete: () => new Date() }) deletedAt: Date;
 }
 // Native decorator enables global soft-deletion behavior
 await querier.deleteOneById(User, id);
@@ -640,7 +646,7 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 
 | Capability | **Drizzle** | **MikroORM** | **Prisma** | **TypeORM** | **UQL** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| Native semantic search | 🔌 | ❌ | 🔌 | ❌ | ✅ |
+| Native semantic search | ✅⁶ | ❌ | 🔌 | ❌ | ✅ |
 | Virtual fields (computed) | 🔌 | ✅ | ❌ | ✅ | ✅ |
 | No custom DSL needed | ✅ | ✅ | ❌ | ✅ | ✅ |
 | No codegen needed | ✅ | ✅ | ❌ | ✅ | ✅ |
@@ -649,8 +655,7 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 | Cursor streaming (AsyncIterable) | ✅ | ✅ | ❌ | 🔌 | ✅ |
 | Soft delete (built-in) | ❌ | 🔌 | 🔌 | ✅ | ✅ |
 | Lifecycle hooks | ❌ | ✅ | 🔌 | ✅ | ✅ |
-| Managed entities require active ORM context (Unit of Work / Identity Map) | ❌ | ✅ | ❌ | ❌ | ❌ |
-| N+1 prevention (automatic) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Works without an active ORM context (no Unit of Work / flush cycle) | ✅ | ❌ | ✅ | ✅ | ✅ |
 | Auto REST API | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Browser querier | ❌ | ❌ | ❌ | ❌ | ✅ |
 | MongoDB support | ❌ | ✅ | ✅ | ✅ | ✅ |
@@ -660,6 +665,7 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 
 ⁴ Prisma Client is broadly consistent across SQL/Mongo, but connector-specific capabilities and raw-query APIs diverge.
 ⁵ TypeORM's Mongo path diverges from SQL behavior (for example, QueryBuilder support differs).
+⁶ PostgreSQL (pgvector) only.
 </small>
 
 ---
@@ -673,7 +679,7 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 | LibSQL / Turso | ✅ | ✅ | ✅ | ❌ | ✅ |
 | MariaDB | ✅ | ✅ | ✅ | ✅ | ✅ |
 | MongoDB | ❌ | ✅ | ✅ | ✅ | ✅ |
-| MSSQL | ✅ | ✅ | ✅ | ✅ | ❌ |
+| MSSQL | ✅⁷ | ✅ | ✅ | ✅ | ❌ |
 | MySQL | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Neon Serverless | ✅ | ✅ | ✅ | ❌ | ✅ |
 | Oracle | ❌ | ✅ | ❌ | ✅ | ❌ |
@@ -683,6 +689,7 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 <small>
 
 ³ MikroORM Cloudflare D1 support is currently documented as an experimental path through its SQL/Kysely integration.
+⁷ Drizzle MSSQL support shipped in the v1.0 beta line (not yet in a stable release).
 
 </small>
 

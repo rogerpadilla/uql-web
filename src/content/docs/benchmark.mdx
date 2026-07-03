@@ -3,6 +3,8 @@ title: Benchmark
 description: SQL-generation speed of UQL vs Sequelize, TypeORM, MikroORM, Drizzle, Knex, and Kysely, measured with an open, reproducible benchmark.
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
+
 Our [open-source benchmark](https://github.com/rogerpadilla/ts-orm-benchmark) measures **pure SQL generation speed**, with no database I/O, to isolate the overhead each tool adds to every query. This page always reflects the latest run; the [original announcement post](/blog/in-search-of-the-fastest-typescript-orm) tells the full story.
 
 > Node.js v24, Apple Silicon M-series, July 2026. Latest stable of every entry: TypeORM 1.0.0, MikroORM 7.1.5, Sequelize 6.37.8, Drizzle 0.45.2, Knex 3.3.0, Kysely 0.29.2, UQL 0.9.4. All values in **ops/sec** (higher is better), averaged over 3 runs.
@@ -53,3 +55,15 @@ npm run bench
 ```
 
 The full methodology, fairness guarantees, and per-run data live in the [benchmark repository](https://github.com/rogerpadilla/ts-orm-benchmark).
+
+---
+
+Speed is one axis. For side-by-side API and feature differences, see the [ORM Comparison](/comparison).
+
+<LinkCard title="ORM Comparison →" href="/comparison" description="UQL vs Prisma, Drizzle, TypeORM, and MikroORM, with actual code for every common operation." />
+
+---
+
+import Giscus from '../../components/Giscus.astro';
+
+<Giscus />
