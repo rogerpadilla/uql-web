@@ -42,10 +42,12 @@ Yes. UQL powers [Variability.ai](https://variability.ai), an AI meeting intellig
 | MySQL | `mysql2` |
 | MariaDB | `mariadb` or `mysql2` |
 | SQLite | `better-sqlite3` |
+| CockroachDB | `pg` |
+| LibSQL / Turso | `@libsql/client` |
 | MongoDB | `mongodb` |
-| Bun SQL Native | Built-in (no install) |
-| Cloudflare D1 | `uql-orm/d1` |
 | Neon | `@neondatabase/serverless` |
+| Bun SQL Native | Built-in (no install) |
+| Cloudflare D1 | Built-in Workers binding (no install) |
 
 For Bun, you don't need external drivers — Bun's native SQL supports PostgreSQL, MySQL, and SQLite out of the box.
 
@@ -63,7 +65,7 @@ If using **decorators** (`@Entity()`, `@Field()`):
 
 If using the **imperative API** (`defineEntity`), no special configuration needed.
 
-Always ensure `"module": "NodeNext"` or `"module": "ESNext"` in your `tsconfig.json`.
+UQL ships as ESM only: Node projects need `"module": "NodeNext"` in `tsconfig.json` and `"type": "module"` in `package.json`; bundler-based projects (Next.js, Vite) work with their defaults.
 
 ---
 
@@ -84,6 +86,10 @@ A UQL query is a plain JavaScript object:
 
 Because the query is data rather than code, you can `JSON.stringify()` it and send it over HTTP, cache it, diff it programmatically, or share it between backend and frontend.
 
+### How do I expose entities over HTTP or query from the browser?
+
+The [HTTP transport core](/extensions-http) serves your entities as a REST API from any framework (Express, Hono, Next.js, Bun, Workers, ...), with hooks for auth and tenant scoping. On the frontend, [`HttpQuerier`](/extensions-browser) consumes that API with the same type-safe query syntax you use on the backend.
+
 ### What's the difference between `type` and `columnType`?
 
 Use `type` for portability, `columnType` for precise SQL control:
@@ -93,7 +99,7 @@ Use `type` for portability, `columnType` for precise SQL control:
 @Field({ type: 'uuid' })
 
 // Use rarely: exact SQL control
-@Field({ columnType: 'CHAR(36)' })
+@Field({ columnType: 'char', length: 36 })
 ```
 
 `type: 'uuid'` generates `UUID` on Postgres but `CHAR(36)` on MySQL automatically.
