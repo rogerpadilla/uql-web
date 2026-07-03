@@ -11,19 +11,6 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 With UQL, semantic search is part of your normal ORM workflow. You can store embeddings and query by meaning without adding a separate search stack.
 
-```mermaid
-%%{init: {'flowchart': {'htmlLabels': true, 'curve': 'basis', 'padding': 24}}}%%
-graph TD
-    R[Raw Input] --> E[Embedding Model]
-    E --> V[Vector Embedding]
-    V --> Q[UQL $vector Query]
-    Q --> DB[(Database)]
-    DB --> S[Cosine/L2 Distance Sort]
-    S --> Res[Semantic Results]
-    style E fill:#f9f,stroke:#333,stroke-width:2px
-    style Q fill:#bbf,stroke:#333,stroke-width:2px
-```
-
 - **Multi-runtime support**: Runs on Node.js, Bun, Deno, and the browser.
 - **Multi-database support**: PostgreSQL (pgvector), CockroachDB, MariaDB, SQLite (via [sqlite-vec](https://github.com/asg017/sqlite-vec)), and MongoDB Atlas Vector Search.
 - **One query shape end-to-end**: Use the same JSON query structure on backend and frontend.
