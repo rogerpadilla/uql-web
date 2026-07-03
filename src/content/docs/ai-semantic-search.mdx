@@ -1,5 +1,5 @@
 ---
-title: AI & Semantic Search
+title: AI & RAG
 sidebar:
   order: 40
 description: Build semantic search and RAG features in UQL with one type-safe query API.
@@ -133,20 +133,16 @@ const results = await http.findMany(Article, {
 
 ## Production tips
 
-### Combine metadata filters with vector ranking
+### Fetch a wider candidate set, then threshold
 
-Restrict the candidate set with a normal `$where` filter before ranking by similarity; the filter and the vector sort run in a single query.
+For RAG, fetch more candidates than you plan to use (e.g. `$limit: 30`), then keep low-signal results out of your context window:
 
 ```ts
 import type { WithDistance } from 'uql-orm';
 
-const queryEmbedding = await embed(userQuery);
-
 const candidates = await pool.withQuerier((querier) =>
   querier.findMany(Article, {
-    $where: {
-      category: 'docs',
-    },
+    $where: { category: 'docs' },
     $sort: {
       embedding: {
         $vector: queryEmbedding,
@@ -157,17 +153,11 @@ const candidates = await pool.withQuerier((querier) =>
     $limit: 30,
   })
 ) as WithDistance<Article, 'score'>[];
-```
 
-### Score thresholding
-
-Keep low-signal results out of your RAG context window:
-
-```ts
 const filtered = candidates.filter((row) => row.score <= 0.35);
 ```
 
-With cosine distance, lower values are better matches. Tune this threshold from real logs and user feedback.
+With cosine distance, lower values are better matches. Tune this threshold from real logs and user feedback. See the [Semantic Search reference](/querying/semantic-search) for how `$where` filtering and vector ranking combine in a single query on each database.
 
 ---
 
