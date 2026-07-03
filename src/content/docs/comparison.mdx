@@ -534,15 +534,10 @@ app.get('/api/users', async (req, res) => {
 ```
 
 ```ts title="UQL"
-// Backend: one handler mounts on Hono, Elysia, Next.js, Bun, Deno, Workers, SvelteKit, Astro...
+// Backend: auto-generated REST API for your entities
 import { createFetchHandler } from 'uql-orm/http';
 
 const handler = createFetchHandler({ include: [User] });
-
-// ...or use the Express adapter
-import { querierMiddleware } from 'uql-orm/express';
-
-app.use('/api', querierMiddleware({ include: [User] }));
 
 // Frontend (Client-side)
 import { HttpQuerier } from 'uql-orm/browser';
@@ -551,7 +546,7 @@ const http = new HttpQuerier('/api');
 const { data: results } = await http.findMany(User, { $where: { status: 'active' } });
 ```
 
-**In practice:** Every ORM in this comparison except UQL requires you to build your own API bridge per model. UQL ships a framework-agnostic [HTTP transport core](/extensions-http) (REST routes, transactions, authorization hooks) plus a typed [browser client](/extensions-browser), connecting frontend to database out of the box.
+**In practice:** Every ORM in this comparison except UQL requires you to build your own API bridge per model. UQL's [HTTP transport core](/extensions-http) is framework-agnostic (the same handler mounts on Hono, Elysia, Next.js, Bun, Deno, Workers, or [Express](/extensions-express)) and pairs with a typed [browser client](/extensions-browser), including transactions and authorization hooks.
 
 ---
 
