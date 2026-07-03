@@ -12,19 +12,8 @@ description: Learn how to manage database schema evolution with UQL's migration 
 
 UQL takes an **Entity-First** approach: you modify your TypeScript entity classes, and UQL auto-generates the migration files for you.
 
-```mermaid
-graph TD
-    A[TypeScript Entity Class] -->|Diff against| B[(Live Database)]
-    B --> C{Schema AST Engine}
-    C -->|Generate| D[Timestamped SQL Migration]
-    D -->|Apply| B
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#bbf,stroke:#333,stroke-width:2px
-    style B fill:#dfd,stroke:#333,stroke-width:2px
-```
-
 :::important[Your entities are the single source of truth]
-**No need to write DDL manually.** UQL diffs your entities against the live database and generates the exact SQL needed. The only thing you maintain is your entity classes — UQL handles everything else.
+**No need to write DDL manually.** UQL diffs your entities against the live database and generates the exact SQL needed. The only thing you maintain is your entity classes; UQL handles everything else.
 
 ```bash
 # 1. Update your entity (add a field, change a type, add a relation...)
@@ -42,7 +31,7 @@ The generated migration contains the `ALTER TABLE` statements derived from the d
 
 **`generate:entities`** writes a default-export migration where each SQL statement is its own `await querier.run("…")` line. The argument is always a normal JavaScript **string literal** (produced with `JSON.stringify`), so SQL that contains **backticks** (SQLite / LibSQL / MySQL-style identifiers), **double quotes**, or **newlines** does not break TypeScript parsing.
 
-If you provide a **custom `SchemaGenerator`**, the create-table helpers **`generateCreateTable`**, **`generateCreateTableFromNode`**, and **`generateCreateTableFromDefinition`** return **`string[]`** — one string per `querier.run`. Join with `'\n'` only when you need a single combined script. (See the **uql-orm** changelog for version **0.8.2**.)
+If you provide a **custom `SchemaGenerator`**, the create-table helpers **`generateCreateTable`**, **`generateCreateTableFromNode`**, and **`generateCreateTableFromDefinition`** return **`string[]`**, one string per `querier.run`. Join with `'\n'` only when you need a single combined script. (See the **uql-orm** changelog for version **0.8.2**.)
 
 ### 1. Unified Configuration
 
