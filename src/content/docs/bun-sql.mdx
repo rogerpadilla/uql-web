@@ -35,22 +35,13 @@ bun add uql-orm
 Import from `uql-orm/bunSql` and pass a Bun **`SQL.Options`** object (connection URL, `adapter`, SQLite `filename`, etc.). UQL infers the dialect from that shape.
 
 ```ts
-import type { Config } from 'uql-orm';
 import { BunSqlQuerierPool } from 'uql-orm/bunSql';
-import { User, Post } from './entities.js';
+import { User } from './entities.js';
 
-const pool = new BunSqlQuerierPool(
-  { url: process.env.DATABASE_URL! }, // e.g. postgres://, mysql://, sqlite://, or file path
-);
+// the url may be postgres://, mysql://, sqlite://, or a file path; UQL infers the dialect
+const pool = new BunSqlQuerierPool({ url: 'postgres://localhost:5432/app' });
 
-export default {
-  pool,
-  entities: [User, Post],
-} satisfies Config;
-
-const users = await pool.withQuerier(async (querier) =>
-  querier.findMany(User, { $limit: 10 }),
-);
+const users = await pool.withQuerier((querier) => querier.findMany(User, { $limit: 10 }));
 ```
 
 ---

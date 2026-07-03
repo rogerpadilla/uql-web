@@ -51,27 +51,29 @@ export class Todo {
 
 ---
 
-## 3. Create a D1 querier in the Worker
+## 3. Query D1 from the Worker
+
+The D1 binding arrives per request via `env`, so create the pool from it inside the handler (it is a cheap wrapper; `end()` is a no-op for D1 bindings). Importing your entities module registers the decorated entities:
 
 ```ts
-import { D1Querier } from 'uql-orm/d1';
+import { type D1Database, D1QuerierPool } from 'uql-orm/d1';
 import { Todo } from './entities';
 
 export default {
   async fetch(request: Request, env: { DB: D1Database }) {
-    const querier = new D1Querier(env.DB, { entities: [Todo] });
+    const pool = new D1QuerierPool(env.DB);
 
-    const todos = await querier.findMany(Todo, {
-      $select: { id: true, title: true, completed: true },
-      $limit: 50,
-    });
+    const todos = await pool.withQuerier((querier) =>
+      querier.findMany(Todo, {
+        $select: { id: true, title: true, completed: true },
+        $limit: 50,
+      }),
+    );
 
-    return new Response(JSON.stringify(todos), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json(todos);
   },
 };
 ```
 
-This pattern works with any D1-backed data model. For more details on query capabilities, see the [Querying](/querying/querier) docs.
+This pattern works with any D1-backed data model. To expose entities as REST endpoints from the same Worker, mount [`createFetchHandler`](/extensions-http) next to your routes; for query capabilities, see the [Querying](/querying/querier) docs.
 
