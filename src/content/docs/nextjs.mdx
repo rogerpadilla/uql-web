@@ -20,12 +20,23 @@ You will:
 ## 1. Install dependencies
 
 ```sh
-npm install uql-orm pg
+npm install uql-orm pg server-only
 ```
 
 ---
 
 ## 2. Define entities and UQL pool
+
+UQL's decorators need two flags that `create-next-app` does not include; add them to `tsconfig.json` (both Turbopack and Webpack support them):
+
+```json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
 
 Create an `entities.ts` file in your app (for example in `src/db/entities.ts`):
 
@@ -48,10 +59,14 @@ export class User {
 Then create a UQL pool in `src/db/uql.ts`:
 
 ```ts
+import 'server-only';
 import { PgQuerierPool } from 'uql-orm/postgres';
 import { User } from './entities';
 
-export const uqlPool = new PgQuerierPool(
+// reuse the pool across `next dev` hot reloads; a fresh pool per reload leaks connections
+const globalForUql = globalThis as { uqlPool?: PgQuerierPool };
+
+export const uqlPool = (globalForUql.uqlPool ??= new PgQuerierPool(
   {
     host: process.env.POSTGRES_HOST,
     database: process.env.POSTGRES_DB,
@@ -61,10 +76,14 @@ export const uqlPool = new PgQuerierPool(
   {
     entities: [User],
   },
-);
+));
 ```
 
-In Next.js, this module will be treated as a server-only file when imported from server components or route handlers.
+The `server-only` import turns any accidental import from client code into a clear build-time error, and the `globalThis` singleton is the same pattern Prisma and Drizzle recommend for dev-server hot reloading.
+
+:::tip[Vercel]
+On Vercel's Fluid compute, register the inner `pg` pool so idle connections close before the function suspends: `attachDatabasePool(uqlPool.pool)` from `@vercel/functions`. Keep the default Node.js runtime; `pg` is not edge-compatible.
+:::
 
 ---
 
@@ -78,12 +97,12 @@ import { uqlPool } from '@/db/uql';
 import { User } from '@/db/entities';
 
 export async function GET() {
-  const users = await uqlPool.transaction(async (querier) => {
-    return await querier.findMany(User, {
+  const users = await uqlPool.withQuerier((querier) =>
+    querier.findMany(User, {
       $select: { id: true, name: true, email: true },
       $limit: 20,
-    });
-  });
+    }),
+  );
 
   return NextResponse.json(users);
 }
@@ -119,6 +138,7 @@ You can also use UQL directly inside **server actions** for form submissions or 
 ```ts
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { uqlPool } from '@/db/uql';
 import { User } from '@/db/entities';
 
@@ -129,6 +149,8 @@ export async function createUser(formData: FormData) {
   await uqlPool.transaction(async (querier) => {
     await querier.insertOne(User, { email, name });
   });
+
+  revalidatePath('/users'); // refresh pages that render this data
 }
 ```
 
@@ -160,13 +182,13 @@ Then query it by similarity:
 import { Article } from '@/db/entities';
 
 export async function searchArticles(queryEmbedding: number[]) {
-  return await uqlPool.transaction(async (querier) => {
-    return await querier.findMany(Article, {
+  return uqlPool.withQuerier((querier) =>
+    querier.findMany(Article, {
       $select: { id: true, title: true },
       $sort: { embedding: { $vector: queryEmbedding, $distance: 'cosine' } },
       $limit: 10,
-    });
-  });
+    }),
+  );
 }
 ```
 

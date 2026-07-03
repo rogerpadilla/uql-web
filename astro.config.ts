@@ -147,6 +147,7 @@ const config: AstroUserConfig = {
             { label: 'Next.js', link: '/nextjs' },
             { label: 'NestJS', link: '/nestjs' },
             { label: 'tRPC', link: '/trpc' },
+            { label: 'oRPC', link: '/orpc', badge: { text: 'New', variant: 'success' } },
             { label: 'React Query', link: '/react-query' },
             { label: 'Bun Native SQL', link: '/bun-sql' },
             { label: 'Cloudflare Workers & D1', link: '/cloudflare-d1' },
