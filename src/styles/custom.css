@@ -171,6 +171,13 @@ section, .sl-markdown-content > *:not(.hero) {
 
 /* ── 5. Custom View Transitions ── */
 
+/* Native cross-document view transitions (Chrome/Edge, Safari 18.2+).
+   Firefox falls back to instant navigation. Keeps Starlight's MPA model
+   intact, so its built-in sidebar scroll persistence keeps working. */
+@view-transition {
+    navigation: auto;
+}
+
 @keyframes fade-in-up {
     from {
         opacity: 0;

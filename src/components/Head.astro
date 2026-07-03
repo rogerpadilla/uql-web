@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import StarlightHead from '@astrojs/starlight/components/Head.astro';
 import { githubRepo, projectDescription } from '../constants';
 
@@ -61,7 +60,6 @@ if (isHome) {
 ---
 
 <StarlightHead {...Astro.props} />
-<ClientRouter />
 {
   schemas.map((schema) => (
     <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
@@ -69,15 +67,9 @@ if (isHome) {
 }
 
 <script>
-  // Vercel Web Analytics. We drive pageviews manually off `astro:page-load`
-  // (same hook as gtag) so Starlight's client-side view transitions are
-  // tracked, not just the initial hard load.
-  import { computeRoute, inject, pageview } from '@vercel/analytics';
+  // Vercel Web Analytics. Every navigation is a full page load (MPA), so
+  // auto-tracking covers all pageviews.
+  import { inject } from '@vercel/analytics';
 
-  inject({ disableAutoTrack: true });
-
-  document.addEventListener('astro:page-load', () => {
-    const path = window.location.pathname;
-    pageview({ route: computeRoute(path, {}), path });
-  });
+  inject();
 </script>

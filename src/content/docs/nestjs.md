@@ -7,7 +7,7 @@ description: Use UQL in NestJS with the UqlModule, injectable querier pool, and 
 
 ## NestJS Integration
 
-`uql-orm/nestjs` ships a minimal dynamic module that registers your querier pool with Nest's DI container and sets it as UQL's default pool, so everything else (middleware, fetch handler, `getQuerier()`, `@Transactional`) works unchanged.
+`uql-orm/nestjs` ships a minimal dynamic module that registers your querier pool with Nest's DI container, sets it as UQL's default pool (so everything else works unchanged: middleware, fetch handler, `getQuerier()`, `@Transactional`), and ends the pool on application shutdown.
 
 ### Setup
 
@@ -66,6 +66,7 @@ import { AppModule } from './app.module.js';
 import { User, Post } from './shared/models/index.js';
 
 const app = await NestFactory.create(AppModule);
+app.enableShutdownHooks(); // lets UqlModule end the pool on SIGTERM
 app.use('/api', querierMiddleware({ include: [User, Post] }));
 await app.listen(3000);
 ```
