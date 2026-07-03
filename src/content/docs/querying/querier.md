@@ -11,7 +11,7 @@ A `querier` is UQL's abstraction over database drivers to dynamically generate q
 
 ### Using a Querier
 
-The recommended way to use a querier is `pool.withQuerier()`. It acquires a querier from the [pool](/getting-started#2-fast-track-example), runs your callback, and guarantees release — even if an error is thrown.
+The recommended way to use a querier is `pool.withQuerier()`. It acquires a querier from the [pool](/getting-started#2-fast-track-example), runs your callback, and guarantees release, even if an error is thrown.
 
 ```ts title="You write"
 import { pool } from './uql.config.js';
@@ -50,15 +50,15 @@ LIMIT 10
 This is especially useful when you want to **release the connection before doing slow non-DB work** (e.g. calling an external API or LLM), preventing connection pool starvation:
 
 ```ts
-// Phase 1 — read from DB (connection held briefly)
+// Phase 1: read from DB (connection held briefly)
 const data = await pool.withQuerier((querier) => 
   querier.findOne(Resource, { $where: { id: resourceId } })
 );
 
-// Phase 2 — slow external call (no connection held)
+// Phase 2: slow external call (no connection held)
 const result = await callExternalApi(data);
 
-// Phase 3 — write result back (connection held briefly)
+// Phase 3: write result back (connection held briefly)
 await pool.withQuerier((querier) => 
   querier.updateOneById(Resource, resourceId, { result })
 );
@@ -91,7 +91,7 @@ try {
 | Method                                      | Description                                    |
 | :------------------------------------------ | :--------------------------------------------- |
 | `findMany(Entity, query)`                   | Find multiple records matching the query.      |
-| `findManyStream(Entity, query)`             | [Stream records](/querying/streaming) as an `AsyncIterable` for memory-efficient row-by-row iteration. Relation loading rules differ from `findMany` — see [streaming & relations](/querying/streaming#relations--streaming). |
+| `findManyStream(Entity, query)`             | [Stream records](/querying/streaming) as an `AsyncIterable` for memory-efficient row-by-row iteration. Relation loading rules differ from `findMany`; see [streaming & relations](/querying/streaming#relations--streaming). |
 | `findManyAndCount(Entity, query)`           | Find records and return `[rows, totalCount]`.  |
 | `findOne(Entity, query)`                    | Find a single record matching the query.       |
 | `findOneById(Entity, id, query?)`           | Find a record by its primary key.              |
@@ -133,18 +133,18 @@ The pool manages the connection lifecycle. These are the main `pool` methods:
 
 | Method                          | Description                                                                 |
 | :------------------------------ | :-------------------------------------------------------------------------- |
-| `pool.withQuerier(callback)`    | Acquire a querier, run `callback`, and auto-release — even on errors.       |
+| `pool.withQuerier(callback)`    | Acquire a querier, run `callback`, and auto-release, even on errors.       |
 | `pool.transaction(callback)`    | Like `withQuerier`, but wraps the callback in a transaction.                |
 | `pool.getQuerier()`             | Manually acquire a querier. **You must call `querier.release()`** yourself. |
 | `pool.end()`                    | Gracefully shut down the pool (close all connections).                      |
 
 :::tip
-Always prefer `pool.withQuerier()` or `pool.transaction()` — they guarantee the connection is released. Use `pool.getQuerier()` only when you need manual lifecycle control (e.g., long-lived operations).
+Always prefer `pool.withQuerier()` or `pool.transaction()`. They guarantee the connection is released. Use `pool.getQuerier()` only when you need manual lifecycle control (e.g., long-lived operations).
 :::
 
 ### Upsert Operations
 
-Upsert (insert-or-update) resolves conflicts using **conflict paths** — the fields that define uniqueness. If a row with matching conflict path values already exists, it is updated; otherwise, a new row is inserted.
+Upsert (insert-or-update) resolves conflicts using **conflict paths**: the fields that define uniqueness. If a row with matching conflict path values already exists, it is updated; otherwise, a new row is inserted.
 
 #### `upsertOne`
 

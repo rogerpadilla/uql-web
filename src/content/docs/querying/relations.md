@@ -103,7 +103,7 @@ SELECT "User"."id", "User"."name" FROM "User"
 WHERE "User"."name" ILIKE $1
 ```
 
-```sql title="Generated SQL (PostgreSQL) — separate query"
+```sql title="Generated SQL (PostgreSQL), separate query"
 -- OneToMany relation loaded via a second query
 SELECT "Post"."title", "Post"."createdAt", "Post"."authorId"
 FROM "Post"
@@ -238,5 +238,5 @@ const items = await querier.findMany(Item, {
 ```
 
 :::note
-`$size` with an exact number (`$size: 3`) also works for relation count — equivalent to `$size: { $eq: 3 }`.
+`$size` with an exact number (`$size: 3`) also works for relation count (equivalent to `$size: { $eq: 3 }`).
 :::

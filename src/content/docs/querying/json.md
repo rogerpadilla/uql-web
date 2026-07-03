@@ -5,10 +5,10 @@ sidebar:
   badge:
     text: New
     variant: success
-description: Work with JSON/JSONB fields — type-safe filtering, atomic updates, and sorting across PostgreSQL, MySQL, MariaDB, and SQLite.
+description: Work with JSON/JSONB fields: type-safe filtering, atomic updates, and sorting across PostgreSQL, MySQL, MariaDB, and SQLite.
 ---
 
-UQL provides first-class support for JSON/JSONB fields across **PostgreSQL**, **MySQL**, **MariaDB**, and **SQLite**. Query, update, and sort by nested JSON properties using a consistent, type-safe API — UQL generates dialect-specific SQL automatically.
+UQL provides first-class support for JSON/JSONB fields across **PostgreSQL**, **MySQL**, **MariaDB**, and **SQLite**. Query, update, and sort by nested JSON properties using a consistent, type-safe API. UQL generates dialect-specific SQL automatically.
 
 :::note[PostgreSQL examples default to Node.js + `pg`]
 Unless stated otherwise, **PostgreSQL** snippets on this page match what **`PgQuerierPool`** / **`PgDialect`** (the `node-postgres` driver) produce:
@@ -21,7 +21,7 @@ If you use **`BunSqlQuerierPool`** against Postgres, UQL switches to **`BunSqlPo
 
 ## Entity Setup
 
-Wrap JSONB field types with `Json<T>` to enable full type safety — IDE autocompletion for dot-notation paths, `$merge` keys, `$unset` keys, and `$push` targets.
+Wrap JSONB field types with `Json<T>` to enable full type safety: IDE autocompletion for dot-notation paths, `$merge` keys, `$unset` keys, and `$push` targets.
 
 ```ts
 import { Entity, Id, Field, Json } from 'uql-orm';
@@ -99,7 +99,7 @@ MariaDB does not support MySQL's `->` / `->>` JSON shorthand operators. UQL uses
 
 Atomically merge or remove keys in JSON fields directly from update payloads. No need to overwrite the entire JSON value.
 
-### `$merge` — Partial Update
+### `$merge`: Partial Update
 
 Merge new key-value pairs into an existing JSON field. Existing keys not in `$merge` are preserved.
 
@@ -129,7 +129,7 @@ UPDATE `Company` SET `kind` = json_set(COALESCE(`kind`, '{}'), '$.public', json(
 -- values: ['1', id]
 ```
 
-### `$unset` — Remove Keys
+### `$unset`: Remove Keys
 
 Remove specific keys from a JSON field.
 
@@ -155,7 +155,7 @@ UPDATE `Company` SET `kind` = JSON_REMOVE(`kind`, '$.private') WHERE `id` = ?
 UPDATE `Company` SET `kind` = json_remove(`kind`, '$.private') WHERE `id` = ?
 ```
 
-### `$push` — Append to Array
+### `$push`: Append to Array
 
 Append a value to the end of a JSON array using native array-append functions. Only keys whose type is an array are valid `$push` targets (type-checked at compile time).
 
@@ -196,7 +196,7 @@ await querier.updateOneById(Company, id, {
 ```
 
 :::caution[Array Merging]
-`$merge` uses **shallow, top-level key overwrite** semantics — arrays are replaced entirely, not appended to. To append elements to a JSON array, use `$push` instead.
+`$merge` uses **shallow, top-level key overwrite** semantics: arrays are replaced entirely, not appended to. To append elements to a JSON array, use `$push` instead.
 :::
 
 :::tip[Type Safety]
@@ -273,5 +273,5 @@ For PostgreSQL, always prefer `type: 'jsonb'` over `type: 'json'`. JSONB is bina
 :::
 
 :::note
-MongoDB stores JSON natively — no special operators are needed. These features are specifically designed for SQL databases where JSON is stored in dedicated column types.
+MongoDB stores JSON natively, so no special operators are needed. These features are specifically designed for SQL databases where JSON is stored in dedicated column types.
 :::

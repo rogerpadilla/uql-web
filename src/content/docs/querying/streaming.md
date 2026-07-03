@@ -27,8 +27,8 @@ UQL keeps streaming memory-friendly by not running the same follow-up work as `f
 
 | Backend | Joinable relations (e.g. many-to-one, one-to-one) | To-many (one-to-many, many-to-many) |
 | :--- | :--- | :--- |
-| **SQL** (`AbstractSqlQuerier`) | Still emitted in the streamed SQL (joins + projected columns). | **Not supported** — To-many relations are filled as a post-processing step which is incompatible with row-by-row streaming. Requesting these keys in `$select` or `$populate` **throws a `TypeError`**. |
-| **MongoDB** (`MongodbQuerier`) | **Not supported** — MongoDB streams use a plain `find` cursor which cannot efficiently load UQL's aggregation-based relations. Requesting any relation keys in `$select` or `$populate` **throws a `TypeError`**. | Same as joinable. |
+| **SQL** (`AbstractSqlQuerier`) | Still emitted in the streamed SQL (joins + projected columns). | **Not supported**. To-many relations are filled as a post-processing step which is incompatible with row-by-row streaming. Requesting these keys in `$select` or `$populate` **throws a `TypeError`**. |
+| **MongoDB** (`MongodbQuerier`) | **Not supported**. MongoDB streams use a plain `find` cursor which cannot efficiently load UQL's aggregation-based relations. Requesting any relation keys in `$select` or `$populate` **throws a `TypeError`**. | Same as joinable. |
 
 For relation-heavy reads, use [`findMany`](/querying/querier) with [`$populate`](/querying/relations).
 

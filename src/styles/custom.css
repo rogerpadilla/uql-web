@@ -4,7 +4,7 @@
    ========================================================================== */
 
 /* ── 1. Color Palette & Typography ── */
-/* All web fonts in a single request — Google Fonts supports multiple `&family=`
+/* All web fonts in a single request: Google Fonts supports multiple `&family=`
    params, so this is one round-trip instead of one per font:
      - Plus Jakarta Sans: body + headings (--sl-font-sans)
      - Comfortaa: display/wordmark (--uql-font-display)
@@ -27,7 +27,7 @@
     --sl-font-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
     --sl-font-sans: 'Plus Jakarta Sans', sans-serif;
     /* Handwritten display font for the wordmark / accent text.
-       Single source of truth — change the family + weight to swap it everywhere.
+       Single source of truth: change the family + weight to swap it everywhere.
        (Weight is paired so single-weight scripts never get faux-bolded.) */
     --uql-font-display: 'Comfortaa', sans-serif;
     --uql-font-display-weight: 300;
@@ -146,7 +146,7 @@ section, .sl-markdown-content > *:not(.hero) {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Blog preview cards — clear visual separation + fully clickable */
+/* Blog preview cards: clear visual separation + fully clickable */
 .preview {
     position: relative;
     cursor: pointer;

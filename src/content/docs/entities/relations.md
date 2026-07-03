@@ -186,7 +186,7 @@ WHERE EXISTS (
 )
 ```
 
-```sql title="Generated SQL (PostgreSQL) — separate query"
+```sql title="Generated SQL (PostgreSQL), separate query"
 -- ManyToMany tags loaded via a second query
 SELECT "Tag"."name", "PostTag"."postId"
 FROM "Tag"

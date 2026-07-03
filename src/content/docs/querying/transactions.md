@@ -130,17 +130,17 @@ All transaction methods accept an optional `TransactionOptions` object to specif
 
 | Level | Description |
 | :--- | :--- |
-| `read uncommitted` | Allows dirty reads — can see uncommitted changes from other transactions. |
+| `read uncommitted` | Allows dirty reads: can see uncommitted changes from other transactions. |
 | `read committed` | Only sees data committed before the query began. Default for most databases. |
 | `repeatable read` | Ensures repeated reads within the transaction return the same result. |
-| `serializable` | Strictest level — transactions execute as if they were serial. |
+| `serializable` | Strictest level: transactions execute as if they were serial. |
 
 ### Usage
 
 Pass `isolationLevel` in the options object to any transaction method:
 
 ```ts
-// Functional — pool.transaction()
+// Functional: pool.transaction()
 const result = await pool.transaction(async (querier) => {
   const account = await querier.findOne(Account, { $where: { id: accountId } });
   await querier.updateOneById(Account, accountId, {
@@ -149,7 +149,7 @@ const result = await pool.transaction(async (querier) => {
   return account;
 }, { isolationLevel: 'serializable' });
 
-// Functional — querier.transaction()
+// Functional: querier.transaction()
 await querier.transaction(async () => {
   // operations...
 }, { isolationLevel: 'repeatable read' });
@@ -162,27 +162,27 @@ await querier.beginTransaction({ isolationLevel: 'read committed' });
 
 | Database | Behavior |
 | :--- | :--- |
-| **PostgreSQL** | Full support — uses `BEGIN TRANSACTION ISOLATION LEVEL ...`. |
-| **MySQL / MariaDB** | Full support — uses `SET TRANSACTION ISOLATION LEVEL` before `START TRANSACTION`. |
-| **Bun SQL** | Full support — passes through to underlying database (Postgres, MySQL, SQLite). |
+| **PostgreSQL** | Full support: uses `BEGIN TRANSACTION ISOLATION LEVEL ...`. |
+| **MySQL / MariaDB** | Full support: uses `SET TRANSACTION ISOLATION LEVEL` before `START TRANSACTION`. |
+| **Bun SQL** | Full support: passes through to underlying database (Postgres, MySQL, SQLite). |
 | **SQLite / LibSQL** | Silently ignored (SQLite uses serializable by default). |
 | **MongoDB** | Silently ignored. |
 
 :::tip
-The `isolationLevel` option is safely ignored on databases that don't support it — your code remains portable across all supported databases without conditional logic.
+The `isolationLevel` option is safely ignored on databases that don't support it. Your code remains portable across all supported databases without conditional logic.
 :::
 
 ---
 
 ## Nesting Behavior
 
-When `querier.transaction()` or `@Transactional()` is called inside an existing transaction, UQL **reuses** the active transaction instead of starting a new one. This makes your code composable — a service method that uses `querier.transaction()` works correctly whether called standalone or from within another transaction.
+When `querier.transaction()` or `@Transactional()` is called inside an existing transaction, UQL **reuses** the active transaction instead of starting a new one. This makes your code composable: a service method that uses `querier.transaction()` works correctly whether called standalone or from within another transaction.
 
 ```ts
 const result = await pool.transaction(async (querier) => {
   await querier.insertOne(User, { name: 'Alice' });
 
-  // This nested call reuses the outer transaction — no new BEGIN/COMMIT
+  // This nested call reuses the outer transaction (no new BEGIN/COMMIT)
   await querier.transaction(async () => {
     await querier.insertOne(Profile, { userId: 1, bio: '...' });
   });
@@ -192,10 +192,10 @@ const result = await pool.transaction(async (querier) => {
 // Both inserts are committed together by the outer transaction
 ```
 
-If the inner callback throws, the error propagates to the outer transaction which rolls back **everything** — both outer and inner operations.
+If the inner callback throws, the error propagates to the outer transaction which rolls back **everything**: both outer and inner operations.
 
 :::note
-`beginTransaction()` is the lowest-level API and **does not** support composable transactions — it throws `TypeError('pending transaction')` if called inside an existing transaction. Use `querier.transaction()` or `@Transactional()` for that use case.
+`beginTransaction()` is the lowest-level API and **does not** support composable transactions. It throws `TypeError('pending transaction')` if called inside an existing transaction. Use `querier.transaction()` or `@Transactional()` for that use case.
 :::
 
 
@@ -205,9 +205,9 @@ If the inner callback throws, the error propagates to the outer transaction whic
 
 | Method | Lifecycle | Isolation Level | Nesting |
 | :--- | :--- | :--- | :--- |
-| `pool.transaction(callback, opts?)` | **Automatic** — acquires, commits/rollbacks, releases. | Yes, via `opts` | Fresh querier |
-| `querier.transaction(callback, opts?)` | **Semi-Automatic** — commits/rollbacks (caller releases). | Yes, via `opts` | Reuses outer |
-| `querier.beginTransaction(opts?)` | **Manual** — caller commits/rollbacks/releases. | Yes, via `opts` | Throws |
-| `querier.commitTransaction()` | Commits the active transaction. | — | — |
-| `querier.rollbackTransaction()` | Rolls back the active transaction. | — | — |
-| `@Transactional({ isolationLevel? })` | **Automatic** — full lifecycle via decorator. | Yes, via options | Reuses outer |
+| `pool.transaction(callback, opts?)` | **Automatic**: acquires, commits/rollbacks, releases. | Yes, via `opts` | Fresh querier |
+| `querier.transaction(callback, opts?)` | **Semi-Automatic**: commits/rollbacks (caller releases). | Yes, via `opts` | Reuses outer |
+| `querier.beginTransaction(opts?)` | **Manual**: caller commits/rollbacks/releases. | Yes, via `opts` | Throws |
+| `querier.commitTransaction()` | Commits the active transaction. | N/A | N/A |
+| `querier.rollbackTransaction()` | Rolls back the active transaction. | N/A | N/A |
+| `@Transactional({ isolationLevel? })` | **Automatic**: full lifecycle via decorator. | Yes, via options | Reuses outer |

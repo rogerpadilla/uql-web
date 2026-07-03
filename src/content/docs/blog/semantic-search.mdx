@@ -101,9 +101,9 @@ results[0].similarity;
 | :--- | :--- | :--- | :--- | :--- |
 | `cosine` | `<=>` | ✅ | ✅ | ✅ (index-defined) |
 | `l2` | `<->` | ✅ | ✅ | ✅ (index-defined) |
-| `inner` | `<#>` | — | — | ✅ (index-defined) |
-| `l1` | `<+>` | — | — | — |
-| `hamming` | `<~>` | — | ✅ | — |
+| `inner` | `<#>` | ❌ | ❌ | ✅ (index-defined) |
+| `l1` | `<+>` | ❌ | ❌ | ❌ |
+| `hamming` | `<~>` | ❌ | ✅ | ❌ |
 
 ### 3 Vector Types
 
@@ -121,7 +121,7 @@ results[0].similarity;
 | :--- | :--- | :--- | :--- |
 | HNSW | ✅ with `m`, `efConstruction` | ❌ | ❌ |
 | IVFFlat | ✅ with `lists` | ❌ | ❌ |
-| Native | — | ✅ `VECTOR INDEX` | ✅ `$vectorSearch` |
+| Native | ❌ | ✅ `VECTOR INDEX` | ✅ `$vectorSearch` |
 
 ## Why `$sort`?
 

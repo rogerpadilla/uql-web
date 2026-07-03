@@ -8,8 +8,8 @@ const PAGE_TITLE_ID = '_top';
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero || {};
 
-// The hero "art" is a real UQL query: it proves the core pitch — queries are
-// plain, serializable JSON with full type inference — in the first second.
+// The hero "art" is a real UQL query: it proves the core pitch (queries are
+// plain, serializable JSON with full type inference) in the first second.
 const heroQuery = `await querier.findMany(User, {
   $select: { id: true, name: true },
   $where: { email: { $endsWith: '@uql-orm.dev' } },

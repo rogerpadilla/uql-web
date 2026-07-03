@@ -89,7 +89,7 @@ longBio?: string;
 ```
 
 :::tip[Prefer `type`]
-Using `type: 'uuid'` generates `UUID` on Postgres but `CHAR(36)` on MySQL — automatically. This makes your entities portable across databases without changes.
+Using `type: 'uuid'` generates `UUID` on Postgres but `CHAR(36)` on MySQL, automatically. This makes your entities portable across databases without changes.
 :::
 
 :::tip[JSONB with `Json<T>`]

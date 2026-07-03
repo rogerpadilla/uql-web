@@ -82,7 +82,7 @@ LIMIT 50
 
 &nbsp;
 
-### `$between` — Range Queries
+### `$between`: Range Queries
 
 ```ts title="You write"
 const users = await querier.findMany(User, {
