@@ -71,8 +71,10 @@ For an entity named `User` (paths derive from the kebab-cased class name):
 | `saveMany`      | `PUT`    | `/user/many`  | array     | Insert or update many.                               |
 | `updateMany`    | `PATCH`  | `/user`       | object    | Bulk partial update of records matching `$where`.    |
 | `updateOneById` | `PATCH`  | `/user/:id`   | object    | Partial update by primary key.                       |
-| `deleteOneById` | `DELETE` | `/user/:id`   |           | Delete by primary key (`?softDelete=true` supported). |
+| `deleteOneById` | `DELETE` | `/user/:id`   |           | Delete by primary key.                               |
 | `deleteMany`    | `DELETE` | `/user`       |           | Bulk delete of records matching the query.           |
+
+Both delete routes accept `?softDelete=true` to mark records as deleted instead of removing them (for entities with a soft-delete field).
 
 All `GET` endpoints accept UQL's [serializable JSON query syntax](/querying/querier): `$select`, `$populate`, `$exclude`, `$where`, and `$sort` travel as JSON strings in the query string; `$skip` and `$limit` as numbers. Writes run inside a transaction; reads acquire and release a pooled querier automatically. `HEAD` requests are served as their `GET` counterparts, and malformed JSON in the query string or body is rejected with a `400`.
 
@@ -117,8 +119,9 @@ const handler = createFetchHandler({
     query.$where ??= {};
     Object.assign(query.$where, { workspaceId: user.activeWorkspaceId });
   },
-  preSave({ body, context }) {
-    // runs for POST, PUT, and PATCH; body is reassignable
+  preSave(ctx) {
+    // runs for POST, PUT, and PATCH; reassign ctx.body to sanitize or inject fields
+    ctx.body = { ...(ctx.body as object), updatedAt: Date.now() };
   },
 });
 ```

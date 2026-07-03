@@ -86,10 +86,10 @@ import { Entity, Id, Field } from 'uql-orm';
 @Entity()
 export class User {
   @Id()
-  id: string;
+  id?: string;
 
   @Field()
-  name: string;
+  name?: string;
 }
 
 // frontend/app.ts

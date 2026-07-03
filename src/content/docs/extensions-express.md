@@ -44,13 +44,15 @@ app.use('/api', querierMiddleware({
   // Intercept save operations (POST, PUT, PATCH)
   preSave(ctx) {
     // Automatically set the creatorId from the session
-    ctx.body = { ...ctx.body, creatorId: ctx.context.user.id };
+    ctx.body = { ...(ctx.body as object), creatorId: ctx.context.user.id };
   },
 
   // Intercept filter operations (GET, DELETE)
   async preFilter({ query, context }) {
-    // Enforce Row-Level Security: users only see their own data
-    await ensureAuthenticated(context); // throw { status: 401 } to abort
+    // Enforce Row-Level Security: users only see their own data.
+    // Abort by throwing an Error with a numeric status, e.g.
+    // throw Object.assign(new Error('unauthorized'), { status: 401 });
+    await ensureAuthenticated(context);
     query.$where ??= {};
     Object.assign(query.$where, { creatorId: context.user.id });
   }
