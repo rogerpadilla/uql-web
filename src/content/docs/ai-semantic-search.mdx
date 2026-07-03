@@ -91,7 +91,7 @@ The query shape stays the same across PostgreSQL, CockroachDB, MariaDB, SQLite, 
 
 ## Fullstack semantic search
 
-UQL queries are plain JSON, so backend and frontend may share the same query format (optional).
+UQL queries are plain JSON, so the frontend can send the same query shape the backend uses:
 
 ```ts
 // api.ts (Express)
@@ -109,7 +109,7 @@ import { Article } from './entities.js';
 const queryEmbedding = await embed('semantic query from user input'); // any embedding model
 const http = new HttpQuerier('/api');
 
-const results = await http.findMany(Article, {
+const { data: results } = await http.findMany(Article, {
   $where: { category: 'science' },
   $sort: { embedding: { $vector: queryEmbedding } },
   $limit: 5,

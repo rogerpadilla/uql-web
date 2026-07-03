@@ -5,7 +5,7 @@ sidebar:
 description: Vector similarity search with $vector, $distance, and $project across PostgreSQL, CockroachDB, MariaDB, SQLite, and MongoDB Atlas.
 ---
 
-UQL supports vector similarity search natively, on **PostgreSQL** (pgvector), **CockroachDB**, **MariaDB**, **SQLite** (sqlite-vec), and **MongoDB Atlas** (`$vectorSearch`). The same `$vector` query works on all of them.
+UQL supports vector similarity search natively, on **PostgreSQL** (pgvector), **CockroachDB**, **MariaDB**, **SQLite** (sqlite-vec), and **MongoDB Atlas** (`$vectorSearch`). The same `$vector` query works on all of them. This page is the operator reference; for an end-to-end walkthrough (ingestion, fullstack usage, RAG thresholds), see [AI & RAG](/ai-semantic-search).
 
 ## Entity Setup
 
@@ -79,7 +79,7 @@ For MongoDB, UQL translates into a [`$vectorSearch`](https://www.mongodb.com/doc
 ```
 
 :::note[MongoDB Atlas Requirement]
-MongoDB vector search requires an Atlas cluster with a [vector search index](https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/) configured on the target field. The distance metric is defined in the Atlas index — the `$distance` parameter is accepted for API consistency but ignored by MongoDB.
+MongoDB vector search requires an Atlas cluster with a [vector search index](https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/) configured on the target field. The distance metric is defined in the Atlas index; the `$distance` parameter is accepted for API consistency but ignored by MongoDB.
 :::
 
 ### Combined with Filtering
@@ -134,7 +134,7 @@ For MongoDB, `$where` is merged into the `$vectorSearch.filter` for optimal pre-
 ```
 
 :::tip[MongoDB Pre-Filtering]
-UQL merges `$where` into the `$vectorSearch.filter` instead of adding a separate `$match` stage. This is the recommended Atlas approach — it uses the search index for filtering, avoiding a full collection scan after the vector search.
+UQL merges `$where` into the `$vectorSearch.filter` instead of adding a separate `$match` stage. This is the recommended Atlas approach: it uses the search index for filtering, avoiding a full collection scan after the vector search.
 :::
 
 ---
@@ -215,7 +215,7 @@ For SQL dialects, when `$project` is set, UQL references the projected alias in 
 
 ## Vector Types
 
-UQL supports three vector storage types — use the one that best fits your model and performance needs:
+UQL supports three vector storage types; use the one that best fits your model and performance needs:
 
 | Type | SQL (Postgres) | Storage | Max Dimensions | Use Case |
 | :--- | :--- | :--- | :--- | :--- |
@@ -235,7 +235,7 @@ sparseEmbedding?: number[];
 ```
 
 :::note
-`halfvec` and `sparsevec` are Postgres-only (pgvector). MariaDB and SQLite map them to their native `VECTOR` type — your entities work everywhere, UQL handles the translation.
+`halfvec` and `sparsevec` are Postgres-only (pgvector). MariaDB and SQLite map them to their native `VECTOR` type, so your entities work everywhere; UQL handles the translation.
 :::
 
 ---
@@ -272,5 +272,5 @@ SQLite (sqlite-vec) does not support vector-specific index creation syntax. Stan
 :::
 
 :::note[MongoDB Atlas]
-For MongoDB, the `@Index` decorator with `type: 'vectorSearch'` tells UQL which Atlas index to reference in the `$vectorSearch` stage. The actual index must be created in Atlas — UQL does not manage Atlas search index creation.
+For MongoDB, the `@Index` decorator with `type: 'vectorSearch'` tells UQL which Atlas index to reference in the `$vectorSearch` stage. The actual index must be created in Atlas; UQL does not manage Atlas search index creation.
 :::
