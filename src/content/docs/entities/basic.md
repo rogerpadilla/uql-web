@@ -8,6 +8,10 @@ description: Define entities with the @Entity, @Id, and @Field decorators, and c
 
 An entity is a plain TypeScript class; its decorators carry the metadata UQL uses for type-safe querying and DDL generation.
 
+:::note[Decorator-free alternative]
+Decorators require `experimentalDecorators` and `emitDecoratorMetadata` in `tsconfig.json`. If your toolchain can't enable them, or you prefer plain classes, the [imperative API](/entities/imperative) (`defineEntity`) registers identical metadata with the same options as the decorators on this page.
+:::
+
 ### Core Decorators
 
 | Decorator     | Purpose                                                                      |
@@ -46,10 +50,6 @@ export class User {
   bio?: string;
 }
 ```
-
-:::note[Decorator-free alternative]
-Decorators require `experimentalDecorators` and `emitDecoratorMetadata` in `tsconfig.json`. If your toolchain can't enable them, or you prefer plain classes, the [imperative API](/entities/imperative) (`defineEntity`) registers identical metadata with the same options as the decorators on this page.
-:::
 
 ### Type Abstraction
 

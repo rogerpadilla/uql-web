@@ -109,12 +109,12 @@ const config: AstroUserConfig = {
           label: 'Core',
           items: [
             { label: 'Entities', link: '/entities/basic' },
+            { label: 'Imperative API', link: '/entities/imperative' },
             { label: 'Relations', link: '/entities/relations' },
             { label: 'Soft Delete', link: '/entities/soft-delete' },
             { label: 'Lifecycle Hooks', link: '/entities/lifecycle-hooks' },
             { label: 'Inheritance', link: '/entities/inheritance' },
             { label: 'Indexes', link: '/entities/indexes' },
-            { label: 'Imperative API', link: '/entities/imperative' },
           ],
         },
         {
