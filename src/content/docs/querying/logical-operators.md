@@ -76,7 +76,7 @@ WHERE "name" ILIKE $1
    OR ("status" = $2 AND "createdAt" < $3)
 ```
 
-### `$not` — Negate a Condition
+### `$not`: Negate a Condition
 
 `$not` wraps conditions with `NOT`. It can be used at the **field level** or at the **top level** as an array of clauses.
 
@@ -107,9 +107,9 @@ SELECT * FROM "User"
 WHERE NOT ("name" = $1 AND "status" = $2)
 ```
 
-### `$nor` — Negate an `OR`
+### `$nor`: Negate an `OR`
 
-`$nor` negates combined `OR` conditions — records match only if **none** of the clauses are true.
+`$nor` negates combined `OR` conditions: records match only if **none** of the clauses are true.
 
 ```ts title="You write"
 const users = await querier.findMany(User, {
