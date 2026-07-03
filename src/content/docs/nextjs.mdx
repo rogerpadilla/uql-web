@@ -91,6 +91,25 @@ export async function GET() {
 
 This keeps your query fully type-safe and works across all supported databases.
 
+### Auto-generated CRUD with a catch-all route
+
+Instead of hand-writing one route per entity, mount the [HTTP transport core](/extensions-http) in a single catch-all route handler, `app/api/uql/[[...uql]]/route.ts`:
+
+```ts
+import { createFetchHandler } from 'uql-orm/http';
+import '@/db/uql'; // registers the pool
+import { User, Post } from '@/db/entities';
+
+const handler = createFetchHandler({
+  include: [User, Post],
+  basePath: '/api/uql',
+});
+
+export { handler as GET, handler as HEAD, handler as POST, handler as PUT, handler as PATCH, handler as DELETE };
+```
+
+Every entity now has typed REST endpoints (`/api/uql/user`, `/api/uql/post`, ...) consumable from the browser with [`HttpQuerier`](/extensions-browser), and hooks handle auth and tenant scoping server-side.
+
 ---
 
 ## 4. Use UQL from server actions

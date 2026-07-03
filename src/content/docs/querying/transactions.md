@@ -31,20 +31,21 @@ const result = await pool.transaction(async (querier) => {
 
 #### Using `querier.transaction()`
 
-If you already have an active `querier` instance, you can use its `transaction` method for automatic commit/rollback:
+If you already have an active `querier` instance (e.g. inside a `pool.withQuerier()` callback), you can use its `transaction` method to make just a section of the work transactional, with automatic commit/rollback:
 
 ```ts
-const querier = await pool.getQuerier();
+const result = await pool.withQuerier(async (querier) => {
+  // non-transactional read
+  const user = await querier.findOne(User, { $where: { email: '...' } });
 
-try {
-  const result = await querier.transaction(async () => {
+  // transactional section
+  return querier.transaction(async () => {
     const userId = await querier.insertOne(User, { name: '...' });
     await querier.insertOne(Profile, { userId, bio: '...' });
     return userId;
   });
-} finally {
-  await querier.release();
-}
+});
+// the querier is automatically released by withQuerier, even on errors
 ```
 
 ---

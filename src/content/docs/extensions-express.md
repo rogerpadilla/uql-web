@@ -7,14 +7,12 @@ description: Auto-generate REST endpoints for your entities with the UQL Express
 
 ## Express Extension
 
-UQL provides a built-in Express middleware to automatically generate RESTful APIs for your entities with zero boilerplate. It handles the entire request lifecycle, including query parsing, transaction management, and automatic querier release.
+UQL provides a built-in Express middleware to automatically generate RESTful APIs for your entities with zero boilerplate. It is a thin adapter over the framework-agnostic [HTTP transport core](/extensions-http), which owns the route table, the request/response envelopes, and the hook system; this page covers only what is Express-specific.
 :::note
 This extension is completely optional. UQL works perfectly fine as a standalone ORM without it.
 :::
 
 ### Quick Start
-
-1. Initialize the `querierMiddleware` in your Express app:
 
 ```ts
 import express from 'express';
@@ -33,64 +31,47 @@ app.use('/api', querierMiddleware({
 app.listen(3000);
 ```
 
-### Advanced Configuration
+This mounts the full [wire protocol](/extensions-http#wire-protocol) for each entity (list, get, count, create, upsert, bulk operations, delete, plus the [`QUERY` transport](/extensions-http#http-query-rfc-10008)). Unknown entities and routes fall through via `next()`, so the middleware composes with your custom routes (webhooks, payments, SSE) on the same app.
 
-The middleware is highly customizable, allowing you to intercept requests, filter data based on the authenticated user, and more.
+### Hooks
+
+The middleware accepts the core's [`pre`, `preSave`, `preFilter`, and `post` hooks](/extensions-http#authorization-and-tenant-scoping-hooks). Under Express, `ctx.context` is the `express.Request`, so session and tenant state are directly at hand:
 
 ```ts
 app.use('/api', querierMiddleware({
-  // Intercept every request
-  pre(req, meta) {
-    console.log(`Processing ${req.method} on ${meta.name}`);
-  },
+  include: [User, Post],
 
-  // Intercept save operations (POST, PATCH, PUT)
-  preSave(req, meta) {
+  // Intercept save operations (POST, PUT, PATCH)
+  preSave(ctx) {
     // Automatically set the creatorId from the session
-    req.body.creatorId = req.user.id;
+    ctx.body = { ...ctx.body, creatorId: ctx.context.user.id };
   },
 
   // Intercept filter operations (GET, DELETE)
-  preFilter(req, meta) {
+  async preFilter({ query, context }) {
     // Enforce Row-Level Security: users only see their own data
-    req.query.$where = { 
-      ...req.query.$where, 
-      creatorId: req.user.id 
-    };
+    await ensureAuthenticated(context); // throw { status: 401 } to abort
+    query.$where ??= {};
+    Object.assign(query.$where, { creatorId: context.user.id });
   }
 }));
 ```
 
-### Hook Reference
+### Error handling
 
-| Hook        | Lifecycle                      | Use Case                                                      |
-| :---------- | :----------------------------- | :------------------------------------------------------------ |
-| `pre`       | Before every operation.        | Logging, auditing, global validation.                         |
-| `preSave`   | Before `POST`, `PATCH`, `PUT`. | Injecting `creatorId`, `updatedAt`, or data sanitization.     |
-| `preFilter` | Before `GET`, `DELETE`.        | Row-level security, tenant isolation, enforcing `softDelete`. |
+Errors go to `next(err)`, so your own error middleware keeps working. The exported `errorHandler` renders the canonical [`{ error: { message, code } }` envelope](/extensions-http#wire-protocol), honoring a numeric `status` thrown by hooks:
 
+```ts
+import { errorHandler } from 'uql-orm/express';
 
-### Generated Endpoints
-
-For an entity named `User`, the following endpoints are automatically generated:
-
-| Method   | Endpoint    | Description                                               |
-| :------- | :---------- | :-------------------------------------------------------- |
-| `GET`    | `/user`     | List users (supports pagination, filtering, and sorting). |
-| `GET`    | `/user/:id` | Get a single user by ID.                                  |
-| `POST`   | `/user`     | Create a new user.                                        |
-| `PATCH`  | `/user/:id` | Update a user partially.                                  |
-| `PUT`    | `/user`     | Upsert a user (insert or update based on conflict paths). |
-| `DELETE` | `/user/:id` | Delete a user (supports soft-delete if configured).       |
+app.use('/api', querierMiddleware({ include: [User] }));
+app.use(errorHandler);
+```
 
 :::note[Dynamic ID Mapping]
-Starting with `0.7.0`, the middleware automatically detects the primary key defined via `@Id()` in your entity metadata. Route parameters like `:id` are no longer hardcoded to the property name `id`, but are mapped dynamically to whatever you've defined as your entity's identifier (e.g., `uuid`, `itemNo`, etc.).
+The middleware automatically detects the primary key defined via `@Id()` in your entity metadata. Route parameters like `:id` are not hardcoded to the property name `id`, but are mapped dynamically to whatever you've defined as your entity's identifier (e.g., `uuid`, `itemNo`, etc.).
 :::
 
 :::tip
-All `GET` endpoints support UQL's [serializable JSON query syntax](/querying/querier), allowing your frontend to perform complex joins and filters directly via URL parameters.
-
-When using `parseQuery` from `uql-orm/express`, JSON-shaped fields **`$select`**, **`$populate`**, **`$exclude`**, **`$where`**, and **`$sort`** can be sent as **strings** (stringified JSON) in the query string; the middleware parses them into objects on `req.query`.
+All `GET` endpoints support UQL's [serializable JSON query syntax](/querying/querier), allowing your frontend to perform complex joins and filters directly via URL parameters. Remember to enable a JSON body parser (`app.use(express.json())`) for the write routes and the `QUERY` transport.
 :::
-
-

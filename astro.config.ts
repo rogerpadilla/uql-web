@@ -137,11 +137,19 @@ const config: AstroUserConfig = {
         {
           label: 'Ecosystem',
           items: [
-            { label: 'Next.js', link: '/nextjs' },
-            { label: 'Bun Native SQL', link: '/bun-sql' },
-            { label: 'Cloudflare Workers & D1', link: '/cloudflare-d1' },
+            {
+              label: 'HTTP (any framework)',
+              link: '/extensions-http',
+              badge: { text: 'New', variant: 'success' },
+            },
             { label: 'Express', link: '/extensions-express' },
             { label: 'Browser', link: '/extensions-browser' },
+            { label: 'Next.js', link: '/nextjs' },
+            { label: 'NestJS', link: '/nestjs' },
+            { label: 'tRPC', link: '/trpc' },
+            { label: 'React Query', link: '/react-query' },
+            { label: 'Bun Native SQL', link: '/bun-sql' },
+            { label: 'Cloudflare Workers & D1', link: '/cloudflare-d1' },
           ],
         },
         {
