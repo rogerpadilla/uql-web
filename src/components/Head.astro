@@ -1,5 +1,6 @@
 ---
 import StarlightHead from '@astrojs/starlight/components/Head.astro';
+import VtbotStarlight from 'astro-vtbot/components/starlight/Base.astro';
 import { githubRepo, projectDescription } from '../constants';
 
 const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://uql-orm.dev';
@@ -59,7 +60,12 @@ if (isHome) {
 }
 ---
 
-<StarlightHead {...Astro.props} />
+{/* Client-side (SPA) navigation for Starlight via astro-vtbot: bundles Astro's
+  ClientRouter and swaps only the main frame, keeping the header and sidebar DOM
+  alive across navigations (sidebar scroll and collapse state are preserved). */}
+<VtbotStarlight>
+  <StarlightHead {...Astro.props}><slot /></StarlightHead>
+</VtbotStarlight>
 {
   schemas.map((schema) => (
     <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
@@ -67,9 +73,14 @@ if (isHome) {
 }
 
 <script>
-  // Vercel Web Analytics. Every navigation is a full page load (MPA), so
-  // auto-tracking covers all pageviews.
-  import { inject } from '@vercel/analytics';
+  // Vercel Web Analytics. Pageviews are driven off `astro:page-load` (same hook
+  // as gtag) so client-side navigations are tracked, not just hard loads.
+  import { computeRoute, inject, pageview } from '@vercel/analytics';
 
-  inject();
+  inject({ disableAutoTrack: true });
+
+  document.addEventListener('astro:page-load', () => {
+    const path = window.location.pathname;
+    pageview({ route: computeRoute(path, {}), path });
+  });
 </script>
