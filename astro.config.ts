@@ -106,9 +106,9 @@ const config: AstroUserConfig = {
           ],
         },
         {
-          label: 'Core',
+          label: 'Entities',
           items: [
-            { label: 'Entities', link: '/entities/basic' },
+            { label: 'Basics', link: '/entities/basic' },
             { label: 'Imperative API', link: '/entities/imperative' },
             { label: 'Relations', link: '/entities/relations' },
             { label: 'Soft Delete', link: '/entities/soft-delete' },
