@@ -11,7 +11,7 @@ Soft-delete allows you to mark records as "deleted" instead of physically removi
 
 ### Configuration
 
-Mark one field with `softDelete` in its `@Field` options. Its presence makes the entity soft-deletable — there's no separate `@Entity` flag. The value controls what gets stamped on delete: pass `true` to stamp `Date.now()`, or a callback (e.g. `() => new Date()`) to stamp anything else. An entity may have at most one soft-delete field.
+Mark one field with `softDelete` in its `@Field` options. Its presence makes the entity soft-deletable — there's no separate `@Entity` flag. The value controls what gets stamped on delete: pass `true` to stamp the current timestamp (`new Date()`), or a callback (e.g. `() => Date.now()` for an epoch-millis column) to stamp anything else. An entity may have at most one soft-delete field.
 
 ```ts
 import { Entity, Id, Field } from 'uql-orm';
@@ -25,12 +25,13 @@ export class User {
   name?: string;
 
   /**
-   * `softDelete` marks this as the field stamped on delete. The callback decides
-   * the value — here a native timestamp; use `softDelete: true` to stamp `Date.now()`.
+   * `softDelete` marks this as the field stamped on delete. `softDelete: true` stamps the
+   * current timestamp (`new Date()`) — so for this column it's equivalent to the callback below;
+   * pass a callback only when you need a different value (e.g. `() => Date.now()`).
    */
   @Field({
     type: 'timestamptz',
-    softDelete: () => new Date(),
+    softDelete: true,
   })
   deletedAt?: Date;
 }
@@ -46,7 +47,8 @@ await querier.deleteOneById(User, 1);
 ```
 
 ```sql title="Generated SQL"
-UPDATE "User" SET "deletedAt" = $1 WHERE "id" = $2
+-- Only already-live rows are stamped
+UPDATE "User" SET "deletedAt" = $1 WHERE "id" = $2 AND "deletedAt" IS NULL
 ```
 
 #### 2. Querying records

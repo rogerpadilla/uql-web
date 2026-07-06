@@ -117,7 +117,7 @@ The `@Field` and `@Id` decorators accept several options for both query validati
 | `distance`     | `VectorDistance`    | Default distance metric for vector similarity queries: `'cosine'`, `'l2'`, `'inner'`, `'l1'`, `'hamming'`.                                                          |
 | `onInsert`     | `function`          | Generator function for new records (e.g., `() => uuidv7()`).                                                                                                       |
 | `onUpdate`     | `function`          | Callback invoked on every update (e.g., `() => new Date()` for `updatedAt`).                                                                                        |
-| `softDelete`   | `boolean` \| `function` | Marks the field used for [soft-delete](/entities/soft-delete). `true` stamps `Date.now()`; a callback stamps its result (e.g., `() => new Date()`).             |
+| `softDelete`   | `boolean` \| `function` | Marks the field used for [soft-delete](/entities/soft-delete). `true` stamps the current timestamp (`new Date()`); a callback stamps its result (e.g., `() => Date.now()`). |
 | `updatable`    | `boolean`           | Set to `false` to prevent updates on this field (e.g., `createdAt`). Defaults to `true`.                                                                            |
 | `eager`        | `boolean`           | Whether this field is included in queries by default. Set to `false` for fields (e.g., `password`) that should only be returned when explicitly selected. Defaults to `true`. |
 | `virtual`      | `RawExpression`     | Defines a computed/[virtual field](/entities/virtual-fields) via raw SQL.                                                                                            |
