@@ -59,7 +59,6 @@ Every entry maps directly to a decorator:
 | `relations` | `@OneToOne` ... `@ManyToMany` | Same [relation options](/entities/relations), plus `cardinality`: `'11'`, `'1m'`, `'m1'`, or `'mm'`.       |
 | `indexes`   | `@Index`                      | `{ columns, name?, unique?, type?, where? }`, see [Indexes](/entities/indexes).                            |
 | `hooks`     | `@BeforeInsert()`, ...        | Maps each [lifecycle event](/entities/lifecycle-hooks) to method names, e.g. `{ beforeInsert: ['stamp'] }`. |
-| `softDelete`| `@Entity({ softDelete })`     | Requires exactly one field with `onDelete`, see [Soft Delete](/entities/soft-delete).                      |
 
 ### Incremental registration
 

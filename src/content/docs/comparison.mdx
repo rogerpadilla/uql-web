@@ -415,12 +415,12 @@ await repo.softDelete(id);
 ```
 
 ```ts title="UQL"
-@Entity({ softDelete: true })
+@Entity()
 export class User {
   @Id() id: number;
-  @Field({ onDelete: () => new Date() }) deletedAt: Date;
+  @Field({ softDelete: () => new Date() }) deletedAt: Date;
 }
-// Native decorator enables global soft-deletion behavior
+// Marking the field enables global soft-deletion behavior
 await querier.deleteOneById(User, id);
 ```
 

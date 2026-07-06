@@ -2,7 +2,7 @@
 title: Soft Delete
 sidebar:
   order: 80
-description: Mark rows as deleted without removing them, using softDelete and onDelete callbacks.
+description: Mark rows as deleted without removing them, using a softDelete field.
 ---
 
 ## Soft-Delete
@@ -11,12 +11,12 @@ Soft-delete allows you to mark records as "deleted" instead of physically removi
 
 ### Configuration
 
-To enable soft-delete, set `softDelete: true` in the `@Entity` decorator and specify a field with an `onDelete` callback.
+Mark one field with `softDelete` in its `@Field` options. Its presence makes the entity soft-deletable — there's no separate `@Entity` flag. The value controls what gets stamped on delete: pass `true` to stamp `Date.now()`, or a callback (e.g. `() => new Date()`) to stamp anything else. An entity may have at most one soft-delete field.
 
 ```ts
 import { Entity, Id, Field } from 'uql-orm';
 
-@Entity({ softDelete: true })
+@Entity()
 export class User {
   @Id()
   id?: number;
@@ -25,12 +25,12 @@ export class User {
   name?: string;
 
   /**
-   * The 'onDelete' callback instructs UQL what value to set when deleting.
-   * A common value is a timestamp (Date).
+   * `softDelete` marks this as the field stamped on delete. The callback decides
+   * the value — here a native timestamp; use `softDelete: true` to stamp `Date.now()`.
    */
-  @Field({ 
-    type: 'timestamptz', 
-    onDelete: () => new Date() 
+  @Field({
+    type: 'timestamptz',
+    softDelete: () => new Date(),
   })
   deletedAt?: Date;
 }

@@ -110,7 +110,7 @@ Partial indexes contain only a subset of the data, which can save space and impr
 // Index only active (non-deleted) emails to ensure uniqueness
 // while allowing multiple 'deleted' records with the same email.
 @Index(['email'], { unique: true, where: '"deletedAt" IS NULL' })
-@Entity({ softDelete: true })
+@Entity()
 export class User {
   @Id()
   id?: number;
@@ -118,8 +118,8 @@ export class User {
   @Field()
   email?: string;
 
-  @Field({ onDelete: () => new Date() })
-    deletedAt?: Date;
+  @Field({ softDelete: () => new Date() })
+  deletedAt?: Date;
 }
 ```
 

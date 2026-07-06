@@ -125,6 +125,10 @@ export class PostTag {
 }
 ```
 
+:::note
+The explicit `@Field({ references })` FK column above is optional. Declaring an owning relation (like `@ManyToOne({ entity: () => User })`) auto-creates the `<relation>Id` column, inheriting the target's primary-key type. Declare it explicitly only when you want to read or query the FK by name in typed code — an explicit declaration always takes precedence.
+:::
+
 ### Handling Circular Dependencies
 
 In modern ESM environments, circular dependencies between entity classes can sometimes cause issues. UQL provides a `Relation<T>` utility type to safely handle these scenarios while maintaining full type safety.
