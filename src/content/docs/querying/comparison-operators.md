@@ -1,7 +1,7 @@
 ---
 title: Comparison Operators
 sidebar:
-  order: 130
+  order: 120
 description: Filter by equality, ranges, string matching, and lists with UQL comparison operators.
 ---
 

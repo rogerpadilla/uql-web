@@ -42,7 +42,7 @@ defineEntity(Post, {
   fields: {
     id: { type: Number, isId: true },
     title: { type: String, nullable: false },
-    authorId: { type: 'uuid', references: () => User },
+    authorId: { references: () => User },
   },
   relations: {
     author: { cardinality: 'm1', entity: () => User },

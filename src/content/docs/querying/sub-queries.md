@@ -1,7 +1,7 @@
 ---
 title: Sub-Queries
 sidebar:
-  order: 165
+  order: 140
 description: Write correlated sub-queries and raw SQL fragments with the raw() helper in UQL.
 ---
 

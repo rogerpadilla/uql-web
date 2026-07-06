@@ -1,7 +1,7 @@
 ---
 title: Transactions
 sidebar:
-  order: 170
+  order: 190
 description: Learn how to manage transactions and configure isolation levels in UQL.
 ---
 

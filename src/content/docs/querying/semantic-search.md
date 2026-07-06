@@ -1,7 +1,7 @@
 ---
 title: Semantic Search
 sidebar:
-  order: 108
+  order: 180
 description: Vector similarity search with $vector, $distance, and $project across PostgreSQL, CockroachDB, MariaDB, SQLite, and MongoDB Atlas.
 ---
 

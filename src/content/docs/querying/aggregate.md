@@ -1,7 +1,7 @@
 ---
 title: Aggregate Queries
 sidebar:
-  order: 107
+  order: 150
 description: Use GROUP BY, HAVING, COUNT, SUM, AVG, MIN, MAX, and DISTINCT with UQL's aggregate API.
 ---
 

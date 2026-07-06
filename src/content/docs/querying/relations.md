@@ -2,7 +2,7 @@
 title: Deep Relations
 
 sidebar:
-  order: 150
+  order: 130
 description: Populate, filter, and sort across related entities with $populate and relation operators.
 ---
 

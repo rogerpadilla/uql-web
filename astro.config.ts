@@ -96,9 +96,8 @@ const config: AstroUserConfig = {
               link: '/getting-started',
             },
             {
-              label: 'AI & RAG',
-              link: '/ai-semantic-search',
-              badge: { text: 'New', variant: 'success' },
+              label: 'Switching to UQL',
+              link: '/switching-to-uql',
             },
             {
               label: 'Comparison',
@@ -108,6 +107,11 @@ const config: AstroUserConfig = {
               label: 'Benchmark',
               link: '/benchmark',
             },
+            {
+              label: 'AI & RAG',
+              link: '/ai-semantic-search',
+              badge: { text: 'New', variant: 'success' },
+            },
           ],
         },
         {
@@ -115,6 +119,7 @@ const config: AstroUserConfig = {
           items: [
             { label: 'Decorators', link: '/entities/basic' },
             { label: 'Imperative API', link: '/entities/imperative' },
+            { label: 'Virtual Fields', link: '/entities/virtual-fields' },
             { label: 'Relations', link: '/entities/relations' },
             { label: 'Soft Delete', link: '/entities/soft-delete' },
             { label: 'Lifecycle Hooks', link: '/entities/lifecycle-hooks' },
@@ -137,17 +142,17 @@ const config: AstroUserConfig = {
         {
           label: 'Ecosystem',
           items: [
+            { label: 'Express', link: '/extensions-express' },
+            { label: 'NestJS', link: '/nestjs' },
+            { label: 'Next.js', link: '/nextjs' },
             {
               label: 'HTTP (any framework)',
               link: '/extensions-http',
               badge: { text: 'New', variant: 'success' },
             },
-            { label: 'Express', link: '/extensions-express' },
-            { label: 'Browser', link: '/extensions-browser' },
-            { label: 'Next.js', link: '/nextjs' },
-            { label: 'NestJS', link: '/nestjs' },
             { label: 'tRPC', link: '/trpc' },
             { label: 'oRPC', link: '/orpc', badge: { text: 'New', variant: 'success' } },
+            { label: 'Browser', link: '/extensions-browser' },
             { label: 'React Query', link: '/react-query' },
             { label: 'Bun Native SQL', link: '/bun-sql' },
             { label: 'Cloudflare Workers & D1', link: '/cloudflare-d1' },

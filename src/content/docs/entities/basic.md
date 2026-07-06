@@ -18,7 +18,7 @@ Decorators require `experimentalDecorators` and `emitDecoratorMetadata` in `tsco
 | :------------ | :--------------------------------------------------------------------------- |
 | `@Entity()`   | Marks a class as a database table/collection. Accepts options: `name` (custom table name), `softDelete` (enable [soft-delete](/entities/soft-delete)). |
 | `@Id()`       | Defines the Primary Key with support for `onInsert` generators (UUIDs, etc). |
-| `@Field()`    | Standard column. Use `{ references: ... }` for Foreign Keys.                 |
+| `@Field()`    | Standard column. Use `{ references: () => Entity }` for foreign keys.           |
 | `@Index()`    | Defines a composite or customized index on one or more columns.              |
 | `@OneToOne`   | Defines a one-to-one relationship.                                           |
 | `@OneToMany`  | Defines a one-to-many relationship.                                          |
@@ -121,8 +121,7 @@ The `@Field` and `@Id` decorators accept several options for both query validati
 | `updatable`    | `boolean`           | Set to `false` to prevent updates on this field (e.g., `createdAt`). Defaults to `true`.                                                                            |
 | `eager`        | `boolean`           | Whether this field is included in queries by default. Set to `false` for fields (e.g., `password`) that should only be returned when explicitly selected. Defaults to `true`. |
 | `virtual`      | `RawExpression`     | Defines a computed/[virtual field](/entities/virtual-fields) via raw SQL.                                                                                            |
-| `references`   | `() => Entity`      | Marks this field as a foreign key referencing another entity's primary key.                                                                                          |
-| `foreignKey`   | `boolean \| string` | `true` for a plain constraint (the default when `references` is set), a string to name it, or `false` to disable the physical constraint while keeping the logical reference. |
+| `references`   | `() => Entity`      | Marks the column as a foreign key to another entity. The column type is inherited from the target's primary key. See [Relations](/entities/relations).              |
 
 ### Primary Key Options
 

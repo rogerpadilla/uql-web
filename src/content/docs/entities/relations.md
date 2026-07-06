@@ -61,13 +61,10 @@ export class Profile {
   picture?: string;
 
   /**
-   * Foreign key field. The 'reference' property links to the target entity.
-   * The 'foreignKey' option allows custom constraint naming.
+   * Foreign key column. The 'references' option points at the target entity;
+   * the column type is inherited from the target's primary key.
    */
-  @Field({ 
-    references: () => User, 
-    foreignKey: 'fk_profile_user' 
-  })
+  @Field({ references: () => User })
   userId?: string;
 
   @OneToOne({ entity: () => User })

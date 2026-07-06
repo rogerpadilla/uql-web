@@ -1,7 +1,7 @@
 ---
 title: Raw SQL
 sidebar:
-  order: 109
+  order: 170
 description: Execute vanilla SQL queries with type safety using all() and run().
 ---
 

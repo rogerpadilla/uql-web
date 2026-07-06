@@ -1,5 +1,7 @@
 ---
 title: Cursor Streaming
+sidebar:
+  order: 200
 description: Process millions of rows with a stable memory footprint using native driver-level cursors.
 ---
 
