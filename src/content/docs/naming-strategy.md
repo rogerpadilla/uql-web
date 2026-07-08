@@ -48,9 +48,9 @@ export default {
 ### How it works
 
 When using `SnakeCaseNamingStrategy`:
-- **Entity**: `UserAccount` → table `user_account`
-- **Field**: `createdAt` → column `created_at`
-- **Relations**: `authorId` → column `author_id`
+- **Entity**: `UserAccount` -> table `user_account`
+- **Field**: `createdAt` -> column `created_at`
+- **Relations**: `authorId` -> column `author_id`
 
 ### Custom Naming Strategy
 

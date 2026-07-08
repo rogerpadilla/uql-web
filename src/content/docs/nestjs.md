@@ -90,11 +90,14 @@ export class AppModule {}
 Then any entity with a security filter is scoped automatically, with no tenant plumbing in your services:
 
 ```ts
-@Filter('tenant', { condition: (ctx) => ({ companyId: ctx.tenantId }), security: true })
+@Filter('tenant', {
+  condition: (ctx) => (ctx?.tenantId != null ? { companyId: ctx.tenantId } : undefined),
+  security: true,
+})
 @Entity()
 export class Invoice {}
 
-this.pool.withQuerier((q) => q.findMany(Invoice, {})); // → ... WHERE companyId = <ctx.tenantId>
+this.pool.withQuerier((q) => q.findMany(Invoice, {})); // generates: ... WHERE companyId = <ctx.tenantId>
 ```
 
 See [Multi-tenancy](/multi-tenancy) for bypass rules, fail-closed behavior, and HTTP safety.

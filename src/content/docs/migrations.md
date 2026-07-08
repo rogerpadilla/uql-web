@@ -29,7 +29,7 @@ The generated migration contains the `ALTER TABLE` statements derived from the d
 
 ### Generated files and custom generators
 
-**`generate:entities`** writes a default-export migration where each SQL statement is its own `await querier.run("…")` line. The argument is always a normal JavaScript **string literal** (produced with `JSON.stringify`), so SQL that contains **backticks** (SQLite / LibSQL / MySQL-style identifiers), **double quotes**, or **newlines** does not break TypeScript parsing.
+**`generate:entities`** writes a default-export migration where each SQL statement is its own `await querier.run("...")` line. The argument is always a normal JavaScript **string literal** (produced with `JSON.stringify`), so SQL that contains **backticks** (SQLite / LibSQL / MySQL-style identifiers), **double quotes**, or **newlines** does not break TypeScript parsing.
 
 If you provide a **custom `SchemaGenerator`**, the create-table helpers **`generateCreateTable`**, **`generateCreateTableFromNode`**, and **`generateCreateTableFromDefinition`** return **`string[]`**, one string per `querier.run`. Join with `'\n'` only when you need a single combined script. (See the **uql-orm** changelog for version **0.8.2**.)
 
@@ -141,7 +141,7 @@ export default {
 } satisfies Config;
 ```
 
-The pool constructor takes Bun’s `SQL.Options` (e.g. `{ url }`, `{ adapter, hostname, ... }`, or SQLite `filename`). The migrator reads the dialect id from `pool.dialect.dialectName`.
+The pool constructor takes Bun's `SQL.Options` (e.g. `{ url }`, `{ adapter, hostname, ... }`, or SQLite `filename`). The migrator reads the dialect id from `pool.dialect.dialectName`.
 
 When running migrations, use the `--bun` flag so Bun's runtime handles TypeScript resolution and native driver loading:
 ```bash
@@ -199,7 +199,7 @@ When scaffolding entities from an existing database (`generate:from-db`), UQL au
 *   **Explicit Foreign Keys**: Standard foreign keys are mapped to `@OneToMany` / `@ManyToOne`.
 *   **One-to-One Relations**: Detected when a foreign key column also has a **unique constraint**.
 *   **Many-to-Many Relations**: Automatically identified by detecting **Junction Tables** (tables with exactly two foreign keys and no other business data).
-*   **Naming Conventions**: If foreign keys are missing, UQL infers logical relations from column naming patterns like `user_id` → `User`.
+*   **Naming Conventions**: If foreign keys are missing, UQL infers logical relations from column naming patterns like `user_id` -> `User`.
 
 #### 3. Drift Detection
 Ensure production safety with `drift:check`. It compares your TypeScript entity definitions against the actual running database and reports:
@@ -208,8 +208,8 @@ Ensure production safety with `drift:check`. It compares your TypeScript entity 
 
 #### 4. Bidirectional Index Sync
 Indexes are synchronized in both directions:
-*   **Entity → DB**: `@Field({ index: true })` creates an index in the database.
-*   **DB → Entity**: Existing database indexes are reflected in generated entity files.
+*   **Entity -> DB**: `@Field({ index: true })` creates an index in the database.
+*   **DB -> Entity**: Existing database indexes are reflected in generated entity files.
 
 ### Other Features
 - **64-bit Primary Keys**: Auto-increment primary keys use `BIGINT` across all dialects for TypeScript `number` compatibility.

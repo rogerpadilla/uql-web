@@ -156,7 +156,10 @@ const handler = createFetchHandler({
 ```
 
 ```ts
-@Filter('tenant', { condition: (ctx) => ({ companyId: ctx.tenantId }), security: true })
+@Filter('tenant', {
+  condition: (ctx) => (ctx?.tenantId != null ? { companyId: ctx.tenantId } : undefined),
+  security: true,
+})
 @Entity()
 export class Invoice {}
 ```

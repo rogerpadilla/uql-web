@@ -269,7 +269,7 @@ For PostgreSQL, always prefer `type: 'jsonb'` over `type: 'json'`. JSONB is bina
 :::
 
 :::tip[Same AST, different Postgres pools]
-**`PostgresDialect`** (shared SQL shape) stringifies JSON for `jsonb` binds. **`PgDialect`** (default with **`PgQuerierPool`**) uses **`$N::jsonb`** and native JS arrays for `ANY`/`ALL`. **`BunSqlPostgresDialect`** (with **`BunSqlQuerierPool`**) uses **`( $N::text )::jsonb`** where Bun’s client needs it, and **array-literal** encoding for `ANY`/`ALL`. Neon and Cockroach pools use other `PostgresDialect` subclasses; JSON casts match the base **`$N::jsonb`** pattern unless you override capabilities.
+**`PostgresDialect`** (shared SQL shape) stringifies JSON for `jsonb` binds. **`PgDialect`** (default with **`PgQuerierPool`**) uses **`$N::jsonb`** and native JS arrays for `ANY`/`ALL`. **`BunSqlPostgresDialect`** (with **`BunSqlQuerierPool`**) uses **`( $N::text )::jsonb`** where Bun's client needs it, and **array-literal** encoding for `ANY`/`ALL`. Neon and Cockroach pools use other `PostgresDialect` subclasses; JSON casts match the base **`$N::jsonb`** pattern unless you override capabilities.
 :::
 
 :::note

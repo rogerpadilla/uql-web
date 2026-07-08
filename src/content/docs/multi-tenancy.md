@@ -54,10 +54,13 @@ await withContext({ tenantId: 42 }, async () => {
 });
 ```
 
-Wire it once at your HTTP boundary and every request is scoped:
+Wire it once at your HTTP boundary and every request is scoped. `getContext` receives the framework's request; read the tenant from a **verified** source (a session store, or a decoded JWT) - never from client input, which a caller could forge to reach another tenant:
 
 ```ts
-// framework-agnostic HTTP handler
+// framework-agnostic HTTP handler - tenant from the session
+createRequestHandler({ getContext: (req) => ({ tenantId: req.session.tenantId }) });
+
+// ...or from an auth layer that populated req.user (Passport, a guard, JWT middleware)
 createRequestHandler({ getContext: (req) => ({ tenantId: req.user.tenantId }) });
 ```
 
