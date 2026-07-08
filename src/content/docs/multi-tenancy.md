@@ -98,8 +98,8 @@ Anything that isn't an HTTP request just wraps its work in `withContext`:
 await withContext({ tenantId }, () => runNightlyBilling(tenantId));
 ```
 
-:::note[Raw SQL is not scoped]
-Filters apply to UQL queries, not to raw SQL (`querier.all(...)`). Scope raw queries by hand, or use database-native RLS for defense in depth.
+:::note[App-level filters vs database-level RLS]
+Security filters enforce tenancy in the ORM: they cover every UQL query - reads, writes, relations, cascades - and can't be bypassed from the wire, but they do not apply to raw SQL (`querier.all(...)`) and only hold within this application. For the strongest isolation, pair them with **database-native row-level security** (e.g. Postgres RLS policies), which the database enforces regardless of app code or which service connects. The two are complementary: the app-level filter gives ergonomic, fail-closed scoping for everyday queries; DB-native RLS is the backstop. Scope any raw queries by hand.
 :::
 
 See [Query Filters](/querying/filters) for the full filter model (named, default-on, bypassable) that this builds on.

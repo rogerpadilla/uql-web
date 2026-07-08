@@ -672,7 +672,7 @@ Features marked as: ✅ native, 🔌 via extension/plugin, ❌ not available.
 ² Prisma Client is broadly consistent across SQL/Mongo, but connector-specific capabilities and raw-query APIs diverge.
 ³ TypeORM's Mongo path diverges from SQL behavior (for example, QueryBuilder support differs).
 ⁴ TypeORM soft-deletes and restores natively (`@DeleteDateColumn` + `restore()`); MikroORM and Prisma need a community plugin or client extension.
-⁵ UQL's `security` filters are non-bypassable and fail closed when the request context is missing. MikroORM has native tenant filters, but any query can disable them (`filters: false`); Prisma relies on client extensions (bypassable) or Postgres-native RLS.
+⁵ This row is about ORM-level tenant scoping. UQL's `security` filters are non-bypassable and fail closed when the request context is missing; MikroORM has native tenant filters, but any query can disable them (`filters: false`); Prisma relies on client extensions (bypassable). Note this is app-layer enforcement in all three - raw SQL escapes it. Database-native row-level security is a stronger, complementary boundary (the DB enforces it regardless of app code): Drizzle can define Postgres RLS policies in the schema (`pgPolicy` / `crudPolicy`), and Prisma documents driving Postgres RLS via an extension. For the strongest isolation, combine an app-level filter with DB-native RLS.
 </small>
 
 ---
