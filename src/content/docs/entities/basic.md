@@ -20,6 +20,7 @@ Decorators require `experimentalDecorators` and `emitDecoratorMetadata` in `tsco
 | `@Id()`       | Defines the Primary Key with support for `onInsert` generators (UUIDs, etc). |
 | `@Field()`    | Standard column. Use `{ references: () => Entity }` for foreign keys.           |
 | `@Index()`    | Defines a composite or customized index on one or more columns.              |
+| `@Filter()`   | Defines a named [query filter](/querying/filters) (default-on `$where`) for soft-delete, tenancy, or RLS. |
 | `@OneToOne`   | Defines a one-to-one relationship.                                           |
 | `@OneToMany`  | Defines a one-to-many relationship.                                          |
 | `@ManyToOne`  | Defines a many-to-one relationship.                                          |

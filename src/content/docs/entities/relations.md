@@ -126,7 +126,7 @@ export class PostTag {
 ```
 
 :::note
-The explicit `@Field({ references })` FK column above is optional. Declaring an owning relation (like `@ManyToOne({ entity: () => User })`) auto-creates the `<relation>Id` column, inheriting the target's primary-key type. Declare it explicitly only when you want to read or query the FK by name in typed code — an explicit declaration always takes precedence.
+The explicit `@Field({ references })` FK column above is optional. Declaring an owning relation (like `@ManyToOne({ entity: () => User })`) auto-creates the `<relation>Id` column, inheriting the target's primary-key type. Declare it explicitly only when you want to read or query the FK by name in typed code - an explicit declaration always takes precedence.
 :::
 
 ### Handling Circular Dependencies

@@ -23,6 +23,21 @@ import { pool } from './uql.config.js';
 export class AppModule {}
 ```
 
+To build the pool from other providers (e.g. `ConfigService`), use `forRootAsync`:
+
+```ts
+@Module({
+  imports: [
+    UqlModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => new PgQuerierPool({ connectionString: config.get('DATABASE_URL') }),
+    }),
+  ],
+})
+export class AppModule {}
+```
+
 ### Injecting the pool into services
 
 ```ts
@@ -53,6 +68,39 @@ A `Querier` is a stateful unit of work: it holds a database connection and possi
 
 :::note
 `UQL_QUERIER_POOL` is for your own providers. UQL's internals (`getQuerier`, `querierMiddleware`, `createFetchHandler`, `@Transactional`) read the default pool that `forRoot` registers, so overriding the DI provider does not redirect them.
+:::
+
+### Multi-tenancy / request context
+
+Pass `getContext` to `forRoot` and UQL wires a global interceptor that runs **every request inside `withContext`** - so [`security` filters](/multi-tenancy) (tenant scoping, row-level security) apply automatically to every query in the request, including relations, cascades, and `@Transactional` services. No querier threading, no per-query `$where`.
+
+```ts
+@Module({
+  imports: [
+    UqlModule.forRoot({
+      pool,
+      // derive the tenant/user from the *verified* request (session / JWT) - never trust the client
+      getContext: (req) => ({ tenantId: req.user.tenantId, userId: req.user.id }),
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+Then any entity with a security filter is scoped automatically, with no tenant plumbing in your services:
+
+```ts
+@Filter('tenant', { condition: (ctx) => ({ companyId: ctx.tenantId }), security: true })
+@Entity()
+export class Invoice {}
+
+this.pool.withQuerier((q) => q.findMany(Invoice, {})); // → ... WHERE companyId = <ctx.tenantId>
+```
+
+See [Multi-tenancy](/multi-tenancy) for bypass rules, fail-closed behavior, and HTTP safety.
+
+:::note[Interceptor timing]
+`getContext` is wired as a global interceptor, which runs **after guards** - so `req.user` (populated by an auth guard) is available, which is what you want for tenant-from-JWT. The context is therefore available in controllers, services, and `@Transactional` methods, but **not inside guards or exception filters**. If you derive the context from something available before auth (a header or sub-domain) or need it in a guard, mount your own middleware instead: `withContext(getContext(req), () => next())` - `withContext` is exported from `uql-orm` and works in any framework.
 :::
 
 ### Auto-generated entity routes

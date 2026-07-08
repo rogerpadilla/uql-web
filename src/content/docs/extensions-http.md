@@ -83,7 +83,7 @@ For an entity named `User` (paths derive from the kebab-cased class name):
 | `deleteOneById` | `DELETE` | `/user/:id`   |           | Delete by primary key.                               |
 | `deleteMany`    | `DELETE` | `/user`       |           | Bulk delete of records matching the query.           |
 
-Both delete routes accept `?softDelete=true` to mark records as deleted instead of removing them (for entities with a soft-delete field).
+For entities with a [soft-delete](/entities/soft-delete) field, both delete routes soft-delete by default; pass `?hardDelete=true` to permanently remove the records instead.
 
 All `GET` endpoints accept UQL's [serializable JSON query syntax](/querying/querier): `$select`, `$populate`, `$exclude`, `$where`, and `$sort` travel as JSON strings in the query string; `$skip` and `$limit` as numbers. Writes run inside a transaction; reads acquire and release a pooled querier automatically. `HEAD` requests are served as their `GET` counterparts, and malformed JSON in the query string or body is rejected with a `400`.
 
@@ -143,6 +143,25 @@ const handler = createFetchHandler({
 | `post`      | After the operation (post-commit). | Response shaping: strip secrets, derive presentation fields.   |
 
 The hook context also carries `meta` (entity metadata), `op` (e.g. `'findMany'`), and `method`, so a single hook can branch per entity or per operation.
+
+### Tenant scoping (recommended: `getContext` + security filters)
+
+Hand-folding `workspaceId` into `$where` (above) works, but for real multi-tenancy prefer a `security` [filter](/querying/filters) plus the `getContext` option. `getContext` derives the context from the verified request and runs the whole request inside `withContext`, so **every** query - reads, writes, relations, cascades - is scoped automatically, can't be bypassed from the wire, and fails closed if the context is missing:
+
+```ts
+const handler = createFetchHandler({
+  include: [Invoice],
+  getContext: (req) => ({ tenantId: authenticate(req).tenantId }), // from a verified session / JWT
+});
+```
+
+```ts
+@Filter('tenant', { condition: (ctx) => ({ companyId: ctx.tenantId }), security: true })
+@Entity()
+export class Invoice {}
+```
+
+See [Multi-tenancy](/multi-tenancy) for the full walkthrough.
 
 `post` receives the mutable success envelope, which covers sanitization that a forced `$select`/`$exclude` cannot express, like deriving flags from stripped secrets:
 

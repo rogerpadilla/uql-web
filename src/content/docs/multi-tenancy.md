@@ -1,0 +1,102 @@
+---
+title: Multi-tenancy
+sidebar:
+  order: 130
+description: Scope every query to the current tenant automatically with security filters and request context.
+---
+
+## Multi-tenancy & Row-Level Security
+
+UQL scopes queries to the current tenant with a **`security` [filter](/querying/filters)** whose condition reads a per-request **context**. Once set up, every read, update, and delete - including relations and cascades - is scoped automatically. You never write `WHERE tenantId = ...` by hand, and you can't forget it.
+
+### 1. Mark the tenant filter `security`
+
+Its condition is a function of the ambient context:
+
+```ts
+import { Entity, Id, Field, Filter } from 'uql-orm';
+
+@Filter('tenant', {
+  // with no tenant, return `undefined` (instead of { companyId: undefined }) so the query throws instead of running unscoped
+  condition: (ctx) => (ctx?.tenantId != null ? { companyId: ctx.tenantId } : undefined),
+  security: true,
+})
+@Entity()
+export class Invoice {
+  @Id() id?: number;
+  @Field() companyId?: number;
+  @Field() total?: number;
+}
+```
+
+Optionally type the context once so `ctx.tenantId` is typed everywhere:
+
+```ts
+declare module 'uql-orm' {
+  interface UqlContext {
+    tenantId: number;
+    userId: string;
+  }
+}
+```
+
+### 2. Set the context for a unit of work
+
+`withContext` establishes the ambient context; it propagates across `await`, `Promise.all`, and transactions:
+
+```ts
+import { withContext } from 'uql-orm';
+
+await withContext({ tenantId: 42 }, async () => {
+  await querier.findMany(Invoice, { $where: { total: { $gt: 100 } } });
+  // Generated SQL:
+  //   SELECT ... FROM "Invoice" WHERE ("total" > $1) AND ("companyId" = $2)   -- $2 = 42
+});
+```
+
+Wire it once at your HTTP boundary and every request is scoped:
+
+```ts
+// framework-agnostic HTTP handler
+createRequestHandler({ getContext: (req) => ({ tenantId: req.user.tenantId }) });
+```
+
+```ts
+// NestJS - see the NestJS guide
+UqlModule.forRoot({ pool, getContext: (req) => ({ tenantId: req.user.tenantId }) });
+```
+
+### What `security: true` guarantees
+
+- **Always applied** - `{ filters: false }` and per-name bypass are ignored for security filters.
+- **Can't be widened by the client** - the condition is AND-merged as its own predicate, so a request sending `$where: { companyId: 999 }` becomes `companyId = 999 AND companyId = 42`, which matches no rows, never a cross-tenant read.
+- **Fails closed** - if the context is missing (`tenantId` undefined, so the condition returns `undefined`), the query throws `UqlSecurityError` instead of running unscoped. (`onMissing: 'skip'` is rejected on security filters - they must fail closed.)
+- **Wire-safe over HTTP** - the request parser only accepts query keys, so a remote client can't inject `filters`/`context` to bypass it. Always derive the tenant from a verified source (session, JWT), never from client input.
+
+### Combining with soft-delete
+
+Security and convenience filters compose. An `Invoice` that is also [soft-deletable](/entities/soft-delete) gets both predicates automatically:
+
+```sql
+SELECT ... FROM "Invoice" WHERE ("companyId" = $1) AND ("deletedAt" IS NULL)
+```
+
+A cross-tenant admin task can bypass *convenience* filters but never the security one:
+
+```ts
+querier.findMany(Invoice, {}, withDeleted()); // includes trashed, still tenant-scoped
+```
+
+### Non-HTTP contexts (jobs, scripts, tests)
+
+Anything that isn't an HTTP request just wraps its work in `withContext`:
+
+```ts
+await withContext({ tenantId }, () => runNightlyBilling(tenantId));
+```
+
+:::note[Raw SQL is not scoped]
+Filters apply to UQL queries, not to raw SQL (`querier.all(...)`). Scope raw queries by hand, or use database-native RLS for defense in depth.
+:::
+
+See [Query Filters](/querying/filters) for the full filter model (named, default-on, bypassable) that this builds on.

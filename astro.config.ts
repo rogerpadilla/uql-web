@@ -134,6 +134,7 @@ const config: AstroUserConfig = {
         {
           label: 'Advanced',
           items: [
+            { label: 'Multi-tenancy & RLS', link: '/multi-tenancy' },
             { label: 'Migrations', link: '/migrations' },
             { label: 'Logging & Monitoring', link: '/logging' },
             { label: 'Naming Strategy', link: '/naming-strategy' },
