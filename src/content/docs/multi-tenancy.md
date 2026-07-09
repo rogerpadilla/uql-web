@@ -98,6 +98,14 @@ Anything that isn't an HTTP request just wraps its work in `withContext`:
 await withContext({ tenantId }, () => runNightlyBilling(tenantId));
 ```
 
+For trusted work that must span **all** tenants (startup recovery, cleanup sweeps), give the condition a system branch that returns `{}` ("no restriction") and run those jobs under an explicit system context - queries with no context at all still fail closed:
+
+```ts
+condition: (ctx) => (ctx?.system ? {} : ctx?.tenantId != null ? { companyId: ctx.tenantId } : undefined),
+
+await withContext({ system: true }, () => recoverStaleJobs()); // spans every tenant, deliberately
+```
+
 :::note[App-level filters vs database-level RLS]
 Security filters enforce tenancy in the ORM: they cover every UQL query - reads, writes, relations, cascades - and can't be bypassed from the wire, but they do not apply to raw SQL (`querier.all(...)`) and only hold within this application. For the strongest isolation, pair them with **database-native row-level security** (e.g. Postgres RLS policies), which the database enforces regardless of app code or which service connects. The two are complementary: the app-level filter gives ergonomic, fail-closed scoping for everyday queries; DB-native RLS is the backstop. Scope any raw queries by hand.
 :::

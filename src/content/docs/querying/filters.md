@@ -66,6 +66,13 @@ Mark a filter `security: true` to enforce tenant isolation / RLS. Security filte
 - are **AND-merged** as an independent predicate, so a client `$where` on the same field can't widen them (`companyId = 'other' AND companyId = 42` matches no rows);
 - **fail closed** - if the condition can't resolve (missing context), the query throws `UqlSecurityError` instead of running unscoped. (Set `onMissing: 'skip'` only on non-security filters.)
 
+A condition may return `{}` to mean "resolved: no restriction" - the escape hatch for **trusted cross-tenant work** (startup recovery, maintenance jobs) that runs under an explicit system context, while a missing context still fails closed:
+
+```ts
+condition: (ctx) => (ctx?.system ? {} : ctx?.tenantId != null ? { companyId: ctx.tenantId } : undefined),
+// withContext({ system: true }, () => ...) -> unscoped; no context -> throws
+```
+
 ### Over HTTP
 
 `createRequestHandler({ getContext })` derives the context from the (verified) request and runs the whole request inside `withContext`, so filters scope automatically:
