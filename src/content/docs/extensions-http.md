@@ -139,7 +139,7 @@ const handler = createFetchHandler({
 | :---------- | :--------------------------------- | :------------------------------------------------------------- |
 | `pre`       | Before every operation.            | Logging, auditing, global validation.                          |
 | `preSave`   | Before `POST`, `PUT`, `PATCH`.     | Injecting `creatorId`, sanitization.                           |
-| `preFilter` | Before `GET`, `DELETE`.            | Row-level security, tenant isolation, enforcing `softDelete`.  |
+| `preFilter` | Before `GET`, `DELETE`.            | Row-level security, tenant isolation, forcing soft-delete (`hardDelete: false`). |
 | `post`      | After the operation (post-commit). | Response shaping: strip secrets, derive presentation fields.   |
 
 The hook context also carries `meta` (entity metadata), `op` (e.g. `'findMany'`), and `method`, so a single hook can branch per entity or per operation.

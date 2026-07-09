@@ -19,7 +19,7 @@ export class User {
   @Id()
   id?: number;
 
-  @Field({ index: true }) // Adds an index named 'idx_user_email'
+  @Field({ index: true }) // Adds an auto-named index: idx_<table>_<column>
   email?: string;
 
   @Field({ index: 'idx_display_name' }) // Adds a named index
