@@ -63,12 +63,10 @@ export default {
   async fetch(request: Request, env: { DB: D1Database }) {
     const pool = new D1QuerierPool(env.DB);
 
-    const todos = await pool.withQuerier((querier) =>
-      querier.findMany(Todo, {
-        $select: { id: true, title: true, completed: true },
-        $limit: 50,
-      }),
-    );
+    const todos = await pool.findMany(Todo, {
+      $select: { id: true, title: true, completed: true },
+      $limit: 50,
+    });
 
     return Response.json(todos);
   },

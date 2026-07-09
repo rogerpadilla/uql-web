@@ -41,7 +41,7 @@ import { User } from './entities.js';
 // the url may be postgres://, mysql://, sqlite://, or a file path; UQL infers the dialect
 const pool = new BunSqlQuerierPool({ url: 'postgres://localhost:5432/app' });
 
-const users = await pool.withQuerier((querier) => querier.findMany(User, { $limit: 10 }));
+const users = await pool.findMany(User, { $limit: 10 });
 ```
 
 ---

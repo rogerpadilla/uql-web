@@ -38,7 +38,7 @@ export class Article {
 
 ### 2. Ingest content with embeddings
 
-For single-operation scopes, prefer [`pool.withQuerier()`](/querying/querier).
+Writes go through [`pool.withQuerier()`](/querying/querier); single reads can be called [directly on the pool](/querying/querier#parallel-reads-on-the-pool).
 
 ```ts
 import { pool } from './uql.config.js';
@@ -64,19 +64,17 @@ import { Article } from './entities.js';
 
 const queryEmbedding = await embed('TypeScript ORM with vector search'); // any embedding model
 
-const results = await pool.withQuerier((querier) =>
-  querier.findMany(Article, {
-    $where: { category: 'docs' },
-    $sort: {
-      embedding: {
-        $vector: queryEmbedding,
-        $distance: 'cosine',
-        $project: 'similarity',
-      },
+const results = (await pool.findMany(Article, {
+  $where: { category: 'docs' },
+  $sort: {
+    embedding: {
+      $vector: queryEmbedding,
+      $distance: 'cosine',
+      $project: 'similarity',
     },
-    $limit: 10,
-  })
-) as WithDistance<Article, 'similarity'>[];
+  },
+  $limit: 10,
+})) as WithDistance<Article, 'similarity'>[];
 
 for (const article of results) {
   console.log(article.title, article.similarity);
@@ -127,19 +125,17 @@ For RAG, fetch more candidates than you plan to use (e.g. `$limit: 30`), then ke
 ```ts
 import type { WithDistance } from 'uql-orm';
 
-const candidates = await pool.withQuerier((querier) =>
-  querier.findMany(Article, {
-    $where: { category: 'docs' },
-    $sort: {
-      embedding: {
-        $vector: queryEmbedding,
-        $distance: 'cosine',
-        $project: 'score',
-      },
+const candidates = (await pool.findMany(Article, {
+  $where: { category: 'docs' },
+  $sort: {
+    embedding: {
+      $vector: queryEmbedding,
+      $distance: 'cosine',
+      $project: 'score',
     },
-    $limit: 30,
-  })
-) as WithDistance<Article, 'score'>[];
+  },
+  $limit: 30,
+})) as WithDistance<Article, 'score'>[];
 
 const filtered = candidates.filter((row) => row.score <= 0.35);
 ```

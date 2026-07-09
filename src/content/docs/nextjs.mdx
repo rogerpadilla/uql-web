@@ -98,12 +98,10 @@ import { uqlPool } from '@/db/uql';
 import { User } from '@/db/entities';
 
 export async function GET() {
-  const users = await uqlPool.withQuerier((querier) =>
-    querier.findMany(User, {
-      $select: { id: true, name: true, email: true },
-      $limit: 20,
-    }),
-  );
+  const users = await uqlPool.findMany(User, {
+    $select: { id: true, name: true, email: true },
+    $limit: 20,
+  });
 
   return NextResponse.json(users);
 }
@@ -184,13 +182,11 @@ import { uqlPool } from '@/db/uql';
 import { Article } from '@/db/entities';
 
 export async function searchArticles(queryEmbedding: number[]) {
-  return uqlPool.withQuerier((querier) =>
-    querier.findMany(Article, {
-      $select: { id: true, title: true },
-      $sort: { embedding: { $vector: queryEmbedding, $distance: 'cosine' } },
-      $limit: 10,
-    }),
-  );
+  return uqlPool.findMany(Article, {
+    $select: { id: true, title: true },
+    $sort: { embedding: { $vector: queryEmbedding, $distance: 'cosine' } },
+    $limit: 10,
+  });
 }
 ```
 

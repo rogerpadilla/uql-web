@@ -51,7 +51,7 @@ export class UsersService {
   constructor(@Inject(UQL_QUERIER_POOL) private readonly pool: QuerierPool) {}
 
   findMany(q: Query<User>) {
-    return this.pool.withQuerier((querier) => querier.findMany(User, q));
+    return this.pool.findMany(User, q);
   }
 
   create(user: User) {
@@ -60,7 +60,7 @@ export class UsersService {
 }
 ```
 
-`withQuerier` handles acquire/release; `transaction` adds begin/commit/rollback. Both are built into every `QuerierPool`.
+Single reads run [directly on the pool](/querying/querier#parallel-reads-on-the-pool) (acquire/release per call); `withQuerier` scopes a multi-statement unit of work and `transaction` adds begin/commit/rollback. All are built into every `QuerierPool`.
 
 :::note[Why inject the pool and not a querier?]
 A `Querier` is a stateful unit of work: it holds a database connection and possibly an open transaction, and it must be acquired and released per operation. Injecting one as a Nest singleton would pin a single connection for the app's lifetime and share transaction state across concurrent requests; making it request-scoped forces the whole provider graph to be re-instantiated per request and still leaves release timing to an interceptor. The pool is the stateless, shareable resource, so it is the right thing to own via DI, and `withQuerier`/`transaction` scope the stateful querier to exactly the lines that need it.
@@ -97,7 +97,7 @@ Then any entity with a security filter is scoped automatically, with no tenant p
 @Entity()
 export class Invoice {}
 
-this.pool.withQuerier((q) => q.findMany(Invoice, {})); // generates: ... WHERE companyId = <ctx.tenantId>
+this.pool.findMany(Invoice, {}); // generates: ... WHERE companyId = <ctx.tenantId>
 ```
 
 See [Multi-tenancy](/multi-tenancy) for bypass rules, fail-closed behavior, and HTTP safety.

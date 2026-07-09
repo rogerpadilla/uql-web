@@ -26,7 +26,7 @@ function entityRouter<E extends object>(entity: Type<E>) {
   return t.router({
     findMany: t.procedure
       .input(passthrough<Query<E>>())
-      .query(({ input }) => pool.withQuerier((querier) => querier.findMany(entity, input))),
+      .query(({ input }) => pool.findMany(entity, input)),
     insertOne: t.procedure
       .input(passthrough<E>())
       .mutation(({ input }) => pool.transaction((querier) => querier.insertOne(entity, input))),
