@@ -165,4 +165,6 @@ Once the legacy ORM is no longer used for any queries, remove it from `package.j
 
 ## When to Switch (and When Not To)
 
-UQL is a good fit if you want serializable queries, no codegen, atomic JSON operators, or one query API across SQL and MongoDB; see the [side-by-side comparison](/comparison) for details. It is a poor fit if you depend on MSSQL or Oracle (not supported), or if your codebase relies heavily on Unit of Work semantics that would be costly to make explicit.
+UQL is a good fit if you want serializable queries, no codegen, atomic JSON operators, or a unified query API for both SQL and MongoDB. It's an especially strong fit for **[semantic search and RAG](/ai-semantic-search)**: vector fields, similarity ranking, and metadata filtering are first-class parts of the same query — the identical JSON shape on backend and browser — across pgvector, SQLite, MariaDB, CockroachDB, and MongoDB Atlas, so you skip the separate vector store and hand-written vector SQL most ORMs still push you toward. See the [side-by-side comparison](/comparison) for details.
+
+It is a poor fit if you depend on MSSQL or Oracle (not supported), or if your codebase relies heavily on Unit of Work semantics that would be costly to make explicit.

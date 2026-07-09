@@ -66,7 +66,7 @@ console.log(result.changes); // Number of affected rows
 
 ## Raw SQL on the Pool
 
-SQL pools expose `all()` and `run()` directly. Each call acquires its own connection, runs the single statement, and releases it - so independent statements fan out in parallel with `Promise.all`, without `withQuerier` ceremony:
+SQL pools expose `all()` and `run()` directly, with the same connection-per-call semantics as the [read helpers](/querying/querier#choosing-poolx-vs-querierx) - so two `pool.all()` calls in a `Promise.all` run on separate connections in parallel:
 
 ```ts title="Two aggregates, two connections, in parallel"
 const [payments, usages] = await Promise.all([

@@ -149,7 +149,7 @@ Always prefer `pool.withQuerier()` or `pool.transaction()` for multi-statement w
 
 | You're running… | Use | Why |
 | :-- | :-- | :-- |
-| A single read | `pool.findMany` / `findOne` / `findOneById` / `findManyAndCount` / `count` / `aggregate` (or [`pool.all`](/querying/raw-sql#raw-sql-on-the-pool) for raw SQL) | Connection acquired and released per call, so a `Promise.all` fans out across connections in parallel |
+| A single read | `pool.findMany` / `findOne` / `findOneById` / `findManyAndCount` / `count` / `aggregate` (or [`pool.all`](/querying/raw-sql#raw-sql-on-the-pool) for raw SQL) | Connection acquired and released per call, so `Promise.all` runs them on separate connections in parallel |
 | Multiple statements, or **any write** | `pool.withQuerier((querier) => …)` | Writes touch relations across several statements — they need one pinned connection |
 | Work that must be all-or-nothing | `pool.transaction((querier) => …)` | Same pinned connection, plus begin / commit / rollback |
 
