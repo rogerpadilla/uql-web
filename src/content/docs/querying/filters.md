@@ -41,7 +41,7 @@ querier.findMany(Task, {}, { filters: { active: true } });      // force-enable 
 
 ### Parameterized filters & context
 
-A filter condition can be a function of an ambient **context** (e.g. the current tenant). Set the context for a unit of work with `withContext` (and read it anywhere with `getContext()`); it propagates across `await`s, `Promise.all`, and transactions:
+A filter condition can be a function of an ambient **context** (e.g. the current tenant). Set the context for a span with `withContext` (and read it anywhere with `getContext()`); it propagates across `await`s, `Promise.all`, and transactions - but **not** into event-callback ticks (emitters, timers, queues): bridge those with `captureContext()`, or scope a single pool call with `pool.withQuerier(cb, { context })` (see [event-driven pipelines](/multi-tenancy#event-driven-pipelines-emitters-timers-queues)):
 
 ```ts
 import { withContext } from 'uql-orm';

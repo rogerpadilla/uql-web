@@ -106,6 +106,40 @@ condition: (ctx) => (ctx?.system ? {} : ctx?.tenantId != null ? { companyId: ctx
 await withContext({ system: true }, () => recoverStaleJobs()); // spans every tenant, deliberately
 ```
 
+### Event-driven pipelines (emitters, timers, queues)
+
+`withContext` uses `AsyncLocalStorage`, which follows `await` chains but does **not** propagate into event-callback ticks: an emitter listener, a timer, or a queued job runs outside the scope that registered it. Two tools cover those boundaries:
+
+- **`captureContext()`** - capture once where the context exists, replay wherever the callback fires:
+
+  ```ts
+  const scoped = captureContext(); // e.g. when the session/queue item is created inside a scoped request
+  deepgram.on('transcript', (t) => scoped(() => saveTranscript(t))); // runs with the captured context
+  ```
+
+- **`{ context }` per unit of work** - when pipeline code already knows its tenant locally (a `resource.tenantId` in hand), pass it right where the querier is acquired; no ambient wiring at all:
+
+  ```ts
+  await pool.withQuerier((q) => q.updateMany(Resource, { $where: { id } }, patch), { context: { tenantId } });
+  ```
+
+Rule of thumb: same mechanism, pick by scope - `withContext` scopes a **span** (a request, a whole job), `{ context }` scopes a **single pool call**, and `captureContext()` carries a span's context across callback boundaries.
+
+Wrap your app's few **chokepoints** (event bus, queue runners, socket dispatch) rather than every function - everything they await inherits the context.
+
+### Filling the tenant column on insert
+
+Filters scope reads, updates, and deletes - inserts still need the tenant value on the row. Fill it from the ambient context so payloads never mention it (an explicitly provided value still wins):
+
+```ts
+@Field({ references: () => Company, updatable: false, onInsert: () => getContext()?.tenantId })
+companyId?: number;
+```
+
+:::caution[Adopt fully - don't run two scoping mechanisms]
+The tenant filter *replaces* hand-threading `tenantId` through every `$where` and insert. Migrate to it completely (filter + context wiring + `onInsert` fill, deleting the manual threading) or not at all - keeping both means two sources of truth for the same rule and doubles the audit surface.
+:::
+
 :::note[App-level filters vs database-level RLS]
 Security filters enforce tenancy in the ORM: they cover every UQL query - reads, writes, relations, cascades - and can't be bypassed from the wire, but they do not apply to raw SQL (`querier.all(...)`) and only hold within this application. For the strongest isolation, pair them with **database-native row-level security** (e.g. Postgres RLS policies), which the database enforces regardless of app code or which service connects. The two are complementary: the app-level filter gives ergonomic, fail-closed scoping for everyday queries; DB-native RLS is the backstop. Scope any raw queries by hand.
 :::
