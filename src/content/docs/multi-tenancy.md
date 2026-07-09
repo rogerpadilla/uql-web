@@ -42,7 +42,7 @@ declare module 'uql-orm' {
 
 ### 2. Set the context for a unit of work
 
-`withContext` establishes the ambient context; it propagates across `await`, `Promise.all`, and transactions - including the [pool-level reads](/querying/querier#parallel-reads-on-the-pool), so one wrapper scopes a whole parallel fan-out:
+`withContext` establishes the ambient context; it propagates across `await`, `Promise.all`, and transactions - including the [pool-level reads](/querying/querier#choosing-poolx-vs-querierx), so one wrapper scopes a whole parallel fan-out:
 
 ```ts
 import { withContext } from 'uql-orm';

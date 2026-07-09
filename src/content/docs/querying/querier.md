@@ -11,28 +11,25 @@ A `querier` is UQL's abstraction over database drivers to dynamically generate q
 
 ### Using a Querier
 
-The recommended way to use a querier is `pool.withQuerier()`. It acquires a querier from the [pool](/getting-started#2-fast-track-example), runs your callback, and guarantees release, even if an error is thrown.
+The query methods live on the [pool](/getting-started#2-fast-track-example). For a **single read**, call one straight on the pool — the connection is acquired and released for you. For a **unit of work** (multiple statements, or any write), use `pool.withQuerier()` and call the methods on the `querier` it hands you. Same methods, two entry points — [which to use, and why](#choosing-poolx-vs-querierx).
 
 ```ts title="You write"
 import { pool } from './uql.config.js';
 import { User } from './shared/models/index.js';
 
-const users = await pool.withQuerier(async (querier) => 
-  querier.findMany(User, {
-    $select: { id: true, name: true },  // Whitelist scalar fields
-    $exclude: { password: true },       // Blacklist scalar fields
-    $populate: { profile: true },       // Load relations
-    $where: { 
-      $or: [
-        { name: 'roger' }, 
-        { creatorId: 1 }
-      ] 
-    },
-    $sort: { createdAt: 'desc' },
-    $limit: 10
-  })
-);
-// querier is automatically released here
+const users = await pool.findMany(User, {
+  $select: { id: true, name: true },  // Whitelist scalar fields
+  $exclude: { password: true },       // Blacklist scalar fields
+  $populate: { profile: true },       // Load relations
+  $where: {
+    $or: [
+      { name: 'roger' },
+      { creatorId: 1 }
+    ]
+  },
+  $sort: { createdAt: 'desc' },
+  $limit: 10
+});
 ```
 
 ```sql title="Generated SQL (PostgreSQL)"
@@ -138,7 +135,7 @@ The pool manages the connection lifecycle. These are the main `pool` methods:
 | `pool.withQuerier(callback)`    | Acquire a querier, run `callback`, and auto-release, even on errors.       |
 | `pool.transaction(callback)`    | Like `withQuerier`, but wraps the callback in a transaction.                |
 | `pool.getQuerier()`             | Manually acquire a querier. **You must call `querier.release()`** yourself. |
-| `pool.findMany(...)` and the other reads | Run a single read on its own connection - see [parallel reads](#parallel-reads-on-the-pool) below. |
+| `pool.findMany(...)` and the other reads | Run a single read on its own connection - see [parallel reads](#choosing-poolx-vs-querierx) below. |
 | [`pool.all(sql, values?)` / `pool.run(sql, values?)`](/querying/raw-sql#raw-sql-on-the-pool) | Run one [raw SQL](/querying/raw-sql) statement on its own connection (SQL pools only). |
 | `pool.end()`                    | Gracefully shut down the pool (close all connections).                      |
 
@@ -146,9 +143,17 @@ The pool manages the connection lifecycle. These are the main `pool` methods:
 Always prefer `pool.withQuerier()` or `pool.transaction()` for multi-statement work. They guarantee the connection is released. Use `pool.getQuerier()` only when you need manual lifecycle control (e.g., long-lived operations).
 :::
 
-### Parallel Reads on the Pool
+### Choosing: `pool.x` vs. `querier.x`
 
-The read methods - `findMany`, `findOne`, `findOneById`, `findManyAndCount`, `count`, and `aggregate` - are available directly on the pool. Each call acquires its own connection, runs the single read, and releases it, so independent reads fan out in parallel with `Promise.all`:
+`pool.findMany(User, q)` is exactly `pool.withQuerier((querier) => querier.findMany(User, q))` — the pool runs a **single statement** as its own unit of work: acquire a connection, run, release. A `querier` is the handle you get **inside** a `withQuerier` / `transaction` callback, where several statements share one connection.
+
+| You're running… | Use | Why |
+| :-- | :-- | :-- |
+| A single read | `pool.findMany` / `findOne` / `findOneById` / `findManyAndCount` / `count` / `aggregate` (or [`pool.all`](/querying/raw-sql#raw-sql-on-the-pool) for raw SQL) | Connection acquired and released per call, so a `Promise.all` fans out across connections in parallel |
+| Multiple statements, or **any write** | `pool.withQuerier((querier) => …)` | Writes touch relations across several statements — they need one pinned connection |
+| Work that must be all-or-nothing | `pool.transaction((querier) => …)` | Same pinned connection, plus begin / commit / rollback |
+
+Independent reads on the pool run in parallel; the same calls inside one `withQuerier` share a pinned connection and queue:
 
 ```ts title="Two connections, in parallel"
 const [invoices, total] = await Promise.all([
@@ -157,17 +162,13 @@ const [invoices, total] = await Promise.all([
 ]);
 ```
 
-The same calls inside one `withQuerier` callback share a single pinned connection, so they queue instead:
-
 ```ts title="One pinned connection - queries serialize"
 await pool.withQuerier((querier) =>
   Promise.all([querier.findMany(Invoice, {}), querier.count(Invoice, {})]),
 );
 ```
 
-Both are correct - pick by intent: **pool reads** for independent one-shot queries, **`withQuerier`/`transaction`** for a unit of work that should share one connection (or be atomic).
-
-An enclosing [`withContext`](/multi-tenancy) scopes pool reads like any other query - one wrapper covers a whole parallel fan-out:
+An enclosing [`withContext`](/multi-tenancy) scopes pool reads like any other query — one wrapper covers a whole parallel fan-out:
 
 ```ts
 await withContext({ tenantId }, () =>
@@ -176,7 +177,7 @@ await withContext({ tenantId }, () =>
 ```
 
 :::note
-- Pool reads take the entity-as-argument form only; for the `{ $entity }` form, [streaming](/querying/streaming), or **writes** (they need a unit of work), use `withQuerier` / `transaction`.
+- Pool reads take the entity-as-argument form only; for the `{ $entity }` form or [streaming](/querying/streaming), use `withQuerier`.
 - On single-connection backends (better-sqlite3, Bun sqlite, D1) pool reads stay correct but share the one connection, so they serialize rather than parallelize.
 :::
 

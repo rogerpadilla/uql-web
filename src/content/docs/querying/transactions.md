@@ -30,7 +30,7 @@ const result = await pool.transaction(async (querier) => {
 ```
 
 :::caution[Use the callback's querier inside a transaction]
-Pool-level calls like [`pool.findMany(...)`](/querying/querier#parallel-reads-on-the-pool) or [`pool.all(...)`](/querying/raw-sql#raw-sql-on-the-pool) acquire their **own** connection - inside a transaction callback they run *outside* the transaction and won't see its uncommitted changes. Reads that must observe or join the transaction go through the callback's `querier`.
+Pool-level calls like [`pool.findMany(...)`](/querying/querier#choosing-poolx-vs-querierx) or [`pool.all(...)`](/querying/raw-sql#raw-sql-on-the-pool) acquire their **own** connection - inside a transaction callback they run *outside* the transaction and won't see its uncommitted changes. Reads that must observe or join the transaction go through the callback's `querier`.
 :::
 
 #### Using `querier.transaction()`
