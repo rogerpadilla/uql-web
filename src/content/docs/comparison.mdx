@@ -366,7 +366,17 @@ await querier.updateMany(User, { $where: { status: 'inactive' } }, { status: 'ar
 await querier.deleteOneById(User, id);
 ```
 
-**In practice:** Most CRUD work is similar across these tools. The main difference is the mental model: Drizzle and MikroORM require more focus on the database return or flush cycle, while Prisma, TypeORM, and UQL prioritize fire-and-forget methods.
+**In practice:** Most single-row CRUD is similar across these tools. The main difference is the mental model: Drizzle and MikroORM require more focus on the database return or flush cycle, while Prisma, TypeORM, and UQL prioritize fire-and-forget methods.
+
+**Batch inserts** are where these tools diverge most - and where UQL is al well the smartest ORM. Its [`insertMany`](/querying/querier#insert-ids):
+
+- returns an id per row on every database;
+- accepts records with different column sets in one statement - a missing cell takes the column's default;
+- automatically chunks a batch that would exceed the driver's bind-parameter limit.
+
+Those ids are exact where the database reports them per row (PostgreSQL and MariaDB via `RETURNING`, MongoDB). On MySQL and SQLite they are inferred, but only when it is safe to do so - otherwise the entry is `undefined` instead of a wrong value.
+
+By comparison, Prisma's `createMany` returns only a row count (`createManyAndReturn` returns ids, but not on MySQL), and Drizzle, TypeORM, and MikroORM infer a batch's ids from its single reported `insertId` - so a batch mixing explicit and auto-generated ids comes back misnumbered on MySQL.
 
 ---
 

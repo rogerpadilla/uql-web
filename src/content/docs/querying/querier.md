@@ -124,6 +124,21 @@ const users = await querier.findMany({ $entity: User, $where: { status: 'active'
 This lets you serialize queries as plain JSON and pass them across RPC/REST boundaries. The `$entity` field is stripped before query execution.
 :::
 
+#### Insert IDs
+
+`insertOne`/`insertMany` return the record IDs in payload order. IDs you provide, and IDs generated client-side via `@Id({ onInsert })` (e.g. `randomUUID`), are always returned as-is on every database. Database-generated IDs are exact per row on dialects where the statement itself reports them: PostgreSQL and MariaDB (`INSERT ... RETURNING`) and MongoDB (`insertedIds`). On MySQL and SQLite the driver only reports one generated ID per statement, so UQL infers the rest arithmetically; that inference is applied only when the primary key is auto-increment and no record in the batch supplies an explicit ID (on MySQL it also detects a clustered `auto_increment_increment` stride automatically). In any other case those entries are `undefined` instead of potentially wrong values.
+
+```ts
+const ids = await querier.insertMany(User, [
+  { name: 'Ada', email: 'ada@uql-orm.dev' },
+  { id: 5000, name: 'Alan' }, // explicit id, and omits email
+]);
+// Alan's missing email falls back to its column default.
+// ids: PostgreSQL/MariaDB → [1, 5000] · MySQL/SQLite → [undefined, 5000]
+```
+
+Records in one `insertMany` batch may provide different subsets of columns: the statement uses the union of columns, and missing cells fall back to the database default (`DEFAULT` keyword; `NULL` on SQLite, which also triggers its auto-generated keys). Batches larger than the dialect's bind-parameter limit are split into multiple statements automatically; wrap the call in a [transaction](/querying/transactions) if all-or-nothing behavior matters across such splits.
+
 ---
 
 ### Pool API
