@@ -34,7 +34,10 @@ The decorator-free equivalent, via `defineFilter` (see [Imperative Definition](/
 ```ts
 import { defineEntity, defineField, defineFilter, defineId } from 'uql-orm';
 
-class Task {}
+class Task {
+  id?: number;
+  status?: string;
+}
 
 defineId(Task, 'id', { type: Number });
 defineField(Task, 'status', { type: String });
