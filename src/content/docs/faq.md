@@ -18,14 +18,14 @@ UQL is an ORM for TypeScript that offers:
 
 ### What makes UQL the smartest ORM?
 
-"Smartest" isn't about the longest feature list; it's about one design decision that removes trade-offs other ORMs force on you. Because a UQL query is plain data instead of compiled method chains, UQL is at once:
+One design decision is behind it: a UQL query is plain data, not a compiled method chain. That is what lets UQL be four things most ORMs treat as trade-offs:
 
 - **The most portable**: the same query object runs on PostgreSQL, MySQL, MariaDB, SQLite, MongoDB, and the edge, and serializes to travel over HTTP between server and client unchanged.
 - **The most capable out of the box**: [native semantic and vector search](/ai-semantic-search), [non-bypassable multi-tenant security filters](/multi-tenancy), [soft-delete with restore](/entities/soft-delete), and [entity-first migrations](/migrations), all things that are raw SQL, a plugin, or unsupported elsewhere, plus an optional [REST API](/extensions-http) and [typed browser client](/extensions-browser) in the same package when you need them.
 - **The fastest**: [fastest in all 8 benchmark categories](/benchmark), ~2.1x faster on average than the next tool, and quicker than raw query builders like Knex and Kysely that don't even carry entities or relations.
 - **The lowest-friction**: no codegen, no DSL, no build step. Your TypeScript classes are the schema.
 
-Most ORMs make you pick: lean and fast (Drizzle) or full-featured and heavy (Prisma, TypeORM). UQL is built so you don't choose. See the [full comparison](/comparison).
+Drizzle picks lean and fast; Prisma and TypeORM pick full-featured and heavy. UQL is built so you don't pick. See the [full comparison](/comparison).
 
 ### How is UQL different from Prisma, Drizzle, or TypeORM?
 
