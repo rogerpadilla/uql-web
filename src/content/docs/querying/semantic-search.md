@@ -202,7 +202,7 @@ For MongoDB, `$project` adds a `$meta: 'vectorSearchScore'` projection:
 ```
 
 :::tip[Type Safety]
-UQL reads the `$project` literal and auto adds a typed `similarity: number` property to each result automatically, so `r.similarity` autocompletes and typos are caught at compile time, no cast needed. For a query whose `$project` key is computed at runtime (not a literal), annotate the result with the exported `WithDistance<Article, 'similarity'>` helper.
+UQL reads the `$project` literal and automatically adds a typed `similarity: number` property to each result, so `r.similarity` autocompletes and typos are caught at compile time, no cast needed. For a query whose `$project` key is computed at runtime (not a literal), annotate the result with the exported `WithDistance<Article, 'similarity'>` helper.
 :::
 
 :::note[Performance]
