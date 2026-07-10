@@ -11,7 +11,7 @@ A `querier` is UQL's abstraction over database drivers to dynamically generate q
 
 ### Using a Querier
 
-The query methods live on the [pool](/getting-started#2-fast-track-example). For a **single read**, call one straight on the pool — the connection is acquired and released for you. For a **unit of work** (multiple statements, or any write), use `pool.withQuerier()` and call the methods on the `querier` it hands you. Same methods, two entry points — [which to use, and why](#choosing-poolx-vs-querierx).
+The query methods live on the [pool](/getting-started#2-fast-track-example). For a **single read**, call one straight on the pool and the connection is acquired and released for you. For a **unit of work** (multiple statements, or any write), use `pool.withQuerier()` and call the methods on the `querier` it hands you. Same methods, two entry points: [which to use, and why](#choosing-poolx-vs-querierx).
 
 ```ts title="You write"
 import { pool } from './uql.config.js';
@@ -145,12 +145,12 @@ Always prefer `pool.withQuerier()` or `pool.transaction()` for multi-statement w
 
 ### Choosing: `pool.x` vs. `querier.x`
 
-`pool.findMany(User, q)` is exactly `pool.withQuerier((querier) => querier.findMany(User, q))` — the pool runs a **single statement** as its own unit of work: acquire a connection, run, release. A `querier` is the handle you get **inside** a `withQuerier` / `transaction` callback, where several statements share one connection.
+`pool.findMany(User, q)` is exactly `pool.withQuerier((querier) => querier.findMany(User, q))`: the pool runs a **single statement** as its own unit of work (acquire a connection, run, release). A `querier` is the handle you get **inside** a `withQuerier` / `transaction` callback, where several statements share one connection.
 
 | You're running… | Use | Why |
 | :-- | :-- | :-- |
 | A single read | `pool.findMany` / `findOne` / `findOneById` / `findManyAndCount` / `count` / `aggregate` (or [`pool.all`](/querying/raw-sql#raw-sql-on-the-pool) for raw SQL) | Connection acquired and released per call, so `Promise.all` runs them on separate connections in parallel |
-| Multiple statements, or **any write** | `pool.withQuerier((querier) => …)` | Writes touch relations across several statements — they need one pinned connection |
+| Multiple statements, or **any write** | `pool.withQuerier((querier) => …)` | Writes touch relations across several statements, so they need one pinned connection |
 | Work that must be all-or-nothing | `pool.transaction((querier) => …)` | Same pinned connection, plus begin / commit / rollback |
 
 Independent reads on the pool run in parallel; the same calls inside one `withQuerier` share a pinned connection and queue:
@@ -168,7 +168,7 @@ await pool.withQuerier((querier) =>
 );
 ```
 
-An enclosing [`withContext`](/multi-tenancy) scopes pool reads like any other query — one wrapper covers a whole parallel fan-out:
+An enclosing [`withContext`](/multi-tenancy) scopes pool reads like any other query, so one wrapper covers a whole parallel fan-out:
 
 ```ts
 await withContext({ tenantId }, () =>
