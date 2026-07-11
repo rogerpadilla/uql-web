@@ -22,7 +22,7 @@ Our [open-source benchmark](https://github.com/rogerpadilla/ts-orm-benchmark) me
 | SELECT (complex $or) | **619K** | 157K | 164K | 28K | 35K | 250K | 219K |
 | AGGREGATE (GROUP+HAVING) | **1,527K** | 415K | 292K | 73K | 72K | 329K | 217K |
 
-UQL is the fastest entry in 7 or 8 of the 8 categories depending on the run, on average **~2.1x** faster than the next fastest tool. Batch INSERT is a genuine statistical tie with the standalone query builder **Knex**: across repeated runs the two land within ~3% of each other and either can come out ahead (this run: Knex 487K vs. UQL 473K), unlike the other 7 categories, where UQL's lead is large and holds steady across every run. Explore the [interactive charts](https://rogerpadilla.github.io/ts-orm-benchmark/chart.html).
+UQL is the fastest entry in 7 of 8 categories, on average **~2.1x** faster than the next fastest tool, and tied with the standalone query builder **Knex** on the 8th, batch INSERT: across repeated runs the two land within ~3% of each other and either can come out ahead (this run: Knex 487K vs. UQL 473K), unlike the other 7 categories, where UQL's lead is large and holds steady across every run. Explore the [interactive charts](https://rogerpadilla.github.io/ts-orm-benchmark/chart.html).
 
 | Operation group | Avg advantage (vs. next fastest) |
 | :--- | ---: |
