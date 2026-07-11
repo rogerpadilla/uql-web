@@ -16,7 +16,7 @@ UQL is an ORM for TypeScript that offers:
 - **One API everywhere**: the same syntax works on PostgreSQL, MySQL, MongoDB, SQLite, and edge runtimes
 - **Fast SQL generation**: fastest in all 8 categories of our [open benchmark](/benchmark)
 
-### What makes UQL the smartest ORM?
+### What makes UQL the perfectionist ORM?
 
 One design decision is behind it: a UQL query is plain data, not a compiled method chain. That is what lets UQL be four things most ORMs treat as trade-offs:
 

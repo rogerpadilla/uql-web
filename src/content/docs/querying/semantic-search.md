@@ -28,6 +28,8 @@ export class Article {
 
 :::tip
 For Postgres, UQL automatically emits `CREATE EXTENSION IF NOT EXISTS vector` when your schema includes vector columns. Index migrations pick up HNSW and IVFFlat parameters (`m`, `efConstruction`, `lists`) from the `@Index` decorator, so index changes ship with your normal migrations.
+
+CockroachDB's `VECTOR` type and vector index are native (no extension required), and use the same `<=>`/`<->`/`<#>` query operators as Postgres - see [Vector Indexes](#vector-indexes) below for its index syntax.
 :::
 
 ---
@@ -44,7 +46,7 @@ const results = await querier.findMany(Article, {
 });
 ```
 
-```sql title="Generated SQL (PostgreSQL)"
+```sql title="Generated SQL (PostgreSQL / CockroachDB)"
 SELECT "id", "title" FROM "Article"
 ORDER BY "embedding" <=> $1::vector
 LIMIT 10
@@ -94,7 +96,7 @@ const results = await querier.findMany(Article, {
 });
 ```
 
-```sql title="Generated SQL (PostgreSQL)"
+```sql title="Generated SQL (PostgreSQL / CockroachDB)"
 SELECT * FROM "Article"
 WHERE "category" = $1
 ORDER BY "embedding" <=> $2::vector, "title" ASC
@@ -141,13 +143,17 @@ UQL merges `$where` into the `$vectorSearch.filter` instead of adding a separate
 
 ## Distance Metrics
 
-| Metric | Postgres Operator | MariaDB Function | SQLite Function | MongoDB Atlas | Use Case |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `cosine` | `<=>` | `VEC_DISTANCE_COSINE` | `vec_distance_cosine` | ✅ (index-defined) | Text embeddings (OpenAI, Cohere) |
-| `l2` | `<->` | `VEC_DISTANCE_EUCLIDEAN` | `vec_distance_L2` | ✅ (index-defined) | Image search, spatial data |
-| `inner` | `<#>` | ❌ | ❌ | ✅ (index-defined) | Maximum inner product |
-| `l1` | `<+>` | ❌ | ❌ | ❌ | Manhattan distance |
-| `hamming` | `<~>` | ❌ | `vec_distance_hamming` | ❌ | Binary embeddings |
+| Metric | Postgres Operator | CockroachDB Operator | MariaDB Function | SQLite Function | MongoDB Atlas | Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `cosine` | `<=>` | `<=>` | `VEC_DISTANCE_COSINE` | `vec_distance_cosine` | ✅ (index-defined) | Text embeddings (OpenAI, Cohere) |
+| `l2` | `<->` | `<->` | `VEC_DISTANCE_EUCLIDEAN` | `vec_distance_L2` | ✅ (index-defined) | Image search, spatial data |
+| `inner` | `<#>` | `<#>` | ❌ | ❌ | ✅ (index-defined) | Maximum inner product |
+| `l1` | `<+>` | ❌ | ❌ | ❌ | ❌ | Manhattan distance |
+| `hamming` | `<~>` | ❌ | ❌ | `vec_distance_hamming` | ❌ | Binary embeddings |
+
+:::note[CockroachDB]
+CockroachDB implements only `cosine`, `l2`, and `inner` - `l1` and `hamming` are [not yet implemented](https://www.cockroachlabs.com/docs/stable/vector-indexes) upstream. Using them on a CockroachDB entity throws a clear error at query time rather than a database syntax error.
+:::
 
 If omitted, `$distance` defaults to `'cosine'`. You can also set a default per-field:
 
@@ -174,7 +180,7 @@ const results = await querier.findMany(Article, {
 results.forEach((r) => console.log(r.title, r.similarity));
 ```
 
-```sql title="Generated SQL (PostgreSQL)"
+```sql title="Generated SQL (PostgreSQL / CockroachDB)"
 SELECT "id", "title", "embedding" <=> $1::vector AS "similarity" FROM "Article"
 ORDER BY "similarity"
 LIMIT 10

@@ -368,7 +368,7 @@ await querier.deleteOneById(User, id);
 
 **In practice:** Most single-row CRUD is similar across these tools. The main difference is the mental model: Drizzle and MikroORM require more focus on the database return or flush cycle, while Prisma, TypeORM, and UQL prioritize fire-and-forget methods.
 
-**Batch inserts** are where these tools diverge most - and where UQL is al well the smartest ORM. Its [`insertMany`](/querying/querier#insert-ids):
+**Batch inserts** are where these tools diverge most - and where UQL is al well the perfectionist ORM. Its [`insertMany`](/querying/querier#insert-ids):
 
 - returns an id per row on every database;
 - accepts records with different column sets in one statement - a missing cell takes the column's default;

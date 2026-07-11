@@ -1,10 +1,10 @@
 ---
-title: The smartest TypeScript ORM
-description: UQL is the smartest ORM for TypeScript with serializable queries, no codegen, and a unified API across SQL and MongoDB.
+title: The perfectionist TypeScript ORM
+description: UQL is the perfectionist ORM for TypeScript with serializable queries, no codegen, and a unified API across SQL and MongoDB.
 template: splash
 hero:
   title: UQL
-  tagline: The smartest TypeScript ORM. Serializable queries, no codegen, and a unified API across Postgres, MySQL, SQLite, MongoDB, and the edge.
+  tagline: The perfectionist TypeScript ORM. Serializable queries, no codegen, and a unified API across Postgres, CockroachDB, MySQL, SQLite, MongoDB, and the edge.
   actions:
     - text: Get Started
       link: /getting-started
@@ -23,7 +23,7 @@ npm install uql-orm
 
 ---
 
-## What makes UQL the smartest ORM
+## What makes UQL the perfectionist ORM
 
 Most ORMs make you choose: lean and fast, or full-featured and heavy. UQL is designed so you don't have to. A UQL query is a plain JSON object, the same data you can log, cache, send over HTTP, or hand to the browser, with full TypeScript inference at every depth. That one decision makes it both the fastest ORM in our benchmark and the most capable, with no codegen and no build step. It shapes everything else:
 
@@ -38,7 +38,7 @@ graph LR
 
 - **Queries are data, not method chains.** Build them dynamically, store them, diff them, or send them straight from the browser, mobile or micro-service. There's no DSL to learn and nothing to compile.
 - **No codegen, no build step.** Entities are TypeScript classes, so your code *is* the schema. There's no `.prisma` file to regenerate and no generated client to keep in sync.
-- **One API everywhere.** The same syntax runs on PostgreSQL, MySQL, MariaDB, SQLite, LibSQL, Neon, Cloudflare D1, MongoDB, and Bun's native SQL.
+- **One API everywhere.** The same syntax runs on PostgreSQL, CockroachDB, MySQL, MariaDB, SQLite, LibSQL, Neon, Cloudflare D1, MongoDB, and Bun's native SQL.
 - **Fastest, even vs. query builders.** Fastest in [all 8 categories](/benchmark) of our [open benchmark](https://github.com/rogerpadilla/ts-orm-benchmark): ~2.1× faster on average than the runner-up, and quicker than raw builders like Knex and Kysely, reaching 3.5M ops/s on simple SELECTs and DELETEs.
 - **The hard things, built in.** [Native semantic and vector search](/ai-semantic-search), [non-bypassable multi-tenant security filters](/multi-tenancy), [soft-delete with restore](/entities/soft-delete), and [entity-first migrations](/migrations): capabilities that mean raw SQL, a plugin, or "not supported" in other ORMs. And when you want them, an optional [REST API](/extensions-http) and [typed browser client](/extensions-browser) ship in the same package, no extra dependency.
 
