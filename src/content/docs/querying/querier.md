@@ -209,7 +209,7 @@ await querier.upsertOne(User, { email: true }, {
 });
 ```
 
-```sql title="Generated SQL (PostgreSQL)"
+```sql title="Generated SQL (PostgreSQL / CockroachDB)"
 INSERT INTO "User" ("email", "name") VALUES ($1, $2)
 ON CONFLICT ("email") DO UPDATE SET "name" = EXCLUDED."name"
 ```
@@ -238,4 +238,8 @@ ON DUPLICATE KEY UPDATE `name` = VALUES(`name`)
 
 :::tip
 `upsertMany` is ideal for data synchronization, bulk imports, or seeding. It reduces round-trips to a single statement regardless of the number of records.
+:::
+
+:::note[Insert-vs-update detection]
+The result's `created` field (see [Raw SQL](/querying/raw-sql#run)) reports `true`/`false` on Postgres and MySQL only. CockroachDB has no equivalent to Postgres's `xmax` system column, so `created` is always `undefined` there - `upsertOne`/`upsertMany` themselves work the same as everywhere else.
 :::

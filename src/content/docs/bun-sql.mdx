@@ -71,7 +71,7 @@ Bun's native **SQLite** driver does *not* support connection reservation and thr
 
 ### CockroachDB
 Bun talks to **CockroachDB** through its PostgreSQL wire adapter.
-- **UQL's Role**: Use a Cockroach connection URL (or `adapter: 'cockroachdb'` in `SQL.Options` when Bun exposes it). UQL keeps the dialect id as `cockroachdb` for AST generation while `normalizeBunOpts` maps Bun's `adapter` to `postgres` under the hood.
+- **UQL's Role**: Use a Cockroach connection URL (or `adapter: 'cockroachdb'` in `SQL.Options` when Bun exposes it). UQL keeps the dialect id as `cockroachdb` for AST generation while `normalizeBunOpts` maps Bun's `adapter` to `postgres` under the hood. Since Bun's `sql` client treats the connection exactly like Postgres at the wire level, UQL uses **`BunSqlCockroachDialect`**, the same Bun-tuned parameter binding as `BunSqlPostgresDialect` below - without it, `$merge`/`$push` on a JSONB column would silently produce the wrong value or throw.
 
 ### PostgreSQL dialect
 

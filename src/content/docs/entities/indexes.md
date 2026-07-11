@@ -146,6 +146,26 @@ export class Article {
 
 [Migrations](/migrations) track these parameters: if you tune `m` or `efConstruction` in code, the diff includes the `DROP`/`CREATE` needed to rebuild the index.
 
+On CockroachDB, the same `@Index` decorator (using `type: 'vector'`, the same marker MariaDB's inline index uses) generates CockroachDB's own native index instead:
+
+```ts
+@Index(['embedding'], { type: 'vector', distance: 'cosine' })
+@Entity()
+export class Article {
+  @Id()
+  id?: number;
+
+  @Field({ type: 'vector', dimensions: 1536 })
+  embedding?: number[];
+}
+```
+
+```sql title="Generated SQL (CockroachDB)"
+CREATE VECTOR INDEX IF NOT EXISTS "idx_article_embedding" ON "Article" ("embedding" vector_cosine_ops);
+```
+
+No access-method keyword (unlike pgvector's `USING ivfflat`/`USING hnsw`), and only `cosine`, `l2`, and `inner` are supported - see [Semantic Search](/querying/semantic-search#distance-metrics) for the full metric table.
+
 ### Synchronization
 
 UQL handles indexes automatically during [migrations](/migrations):

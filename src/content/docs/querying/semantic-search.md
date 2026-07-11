@@ -221,11 +221,11 @@ For SQL dialects, when `$project` is set, UQL references the projected alias in 
 
 UQL supports three vector storage types; use the one that best fits your model and performance needs:
 
-| Type | SQL (Postgres) | Storage | Max Dimensions | Use Case |
-| :--- | :--- | :--- | :--- | :--- |
-| `'vector'` | `VECTOR(n)` | 32-bit float | 2,000 | Standard embeddings (OpenAI, etc.) |
-| `'halfvec'` | `HALFVEC(n)` | 16-bit float | 4,000 | 50% storage savings, near-identical accuracy |
-| `'sparsevec'` | `SPARSEVEC(n)` | Sparse | 1,000,000 | SPLADE, BM25-style sparse retrieval |
+| Type | SQL (Postgres) | SQL (CockroachDB) | Storage | Max Dimensions | Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `'vector'` | `VECTOR(n)` | `VECTOR(n)` | 32-bit float | 2,000 | Standard embeddings (OpenAI, etc.) |
+| `'halfvec'` | `HALFVEC(n)` | `VECTOR(n)` | 16-bit float | 4,000 | 50% storage savings, near-identical accuracy |
+| `'sparsevec'` | `SPARSEVEC(n)` | `VECTOR(n)` | Sparse | 1,000,000 | SPLADE, BM25-style sparse retrieval |
 
 ```ts title="Examples"
 @Field({ type: 'vector', dimensions: 1536 })    // OpenAI ada-002
@@ -239,7 +239,7 @@ sparseEmbedding?: number[];
 ```
 
 :::note
-`halfvec` and `sparsevec` are Postgres-only (pgvector). MariaDB and SQLite map them to their native `VECTOR` type, so your entities work everywhere; UQL handles the translation.
+`halfvec` and `sparsevec` are Postgres-only (pgvector) - CockroachDB has no equivalent types. CockroachDB, MariaDB, and SQLite all map them to their native `VECTOR` type instead, so your entities work everywhere; UQL handles the translation.
 :::
 
 ---
@@ -248,12 +248,12 @@ sparseEmbedding?: number[];
 
 Define vector indexes with `@Index()` for efficient approximate nearest-neighbor (ANN) search:
 
-| Index Type | Postgres | MariaDB | MongoDB Atlas | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| `hnsw` | ✅ `USING hnsw` with operator classes | ❌ | ❌ | Best accuracy, higher memory |
-| `ivfflat` | ✅ `USING ivfflat` with `lists` param | ❌ | ❌ | Faster build, large datasets |
-| `vector` | ❌ | ✅ Inline `VECTOR INDEX` | ❌ | MariaDB's native vector index |
-| `vectorSearch` | ❌ | ❌ | ✅ Atlas vector search index | MongoDB's managed ANN index |
+| Index Type | Postgres | CockroachDB | MariaDB | MongoDB Atlas | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `hnsw` | ✅ `USING hnsw` with operator classes | ❌ | ❌ | ❌ | Best accuracy, higher memory |
+| `ivfflat` | ✅ `USING ivfflat` with `lists` param | ❌ | ❌ | ❌ | Faster build, large datasets |
+| `vector` | ❌ | ✅ Native `CREATE VECTOR INDEX` | ✅ Inline `VECTOR INDEX` | ❌ | CockroachDB's and MariaDB's own native vector index |
+| `vectorSearch` | ❌ | ❌ | ❌ | ✅ Atlas vector search index | MongoDB's managed ANN index |
 
 ```ts title="Postgres HNSW"
 @Index(['embedding'], { type: 'hnsw', distance: 'cosine', m: 16, efConstruction: 64 })
@@ -263,6 +263,10 @@ Define vector indexes with `@Index()` for efficient approximate nearest-neighbor
 @Index(['embedding'], { type: 'ivfflat', distance: 'l2', lists: 100 })
 ```
 
+```ts title="CockroachDB"
+@Index(['embedding'], { type: 'vector', distance: 'cosine' })
+```
+
 ```ts title="MariaDB"
 @Index(['embedding'], { type: 'vector', distance: 'cosine', m: 8 })
 ```
@@ -270,6 +274,10 @@ Define vector indexes with `@Index()` for efficient approximate nearest-neighbor
 ```ts title="MongoDB Atlas"
 @Index(['embedding'], { type: 'vectorSearch', name: 'my_search_index' })
 ```
+
+:::note[CockroachDB]
+CockroachDB's index shares the same `type: 'vector'` marker as MariaDB's, but generates a standalone `CREATE VECTOR INDEX "idx" ON "table" ("embedding" vector_cosine_ops)` statement - no access-method keyword, unlike pgvector's `USING ivfflat`/`USING hnsw`. It only supports `cosine`, `l2`, and `inner` (not `l1`/`hamming` - see the [Distance Metrics](#distance-metrics) note above), and doesn't yet support tuning parameters (`m`/`efConstruction`/`lists`) - CockroachDB has its own, differently-named tuning knobs that UQL doesn't map yet.
+:::
 
 :::note
 SQLite (sqlite-vec) does not support vector-specific index creation syntax. Standard indexes apply.

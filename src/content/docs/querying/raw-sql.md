@@ -60,7 +60,7 @@ console.log(result.changes); // Number of affected rows
 *   **`changes`**: Number of rows modified, deleted, or inserted.
 *   **`ids`**: Array of inserted IDs (for bulk inserts).
 *   **`firstId`**: The first inserted ID.
-*   **`created`**: Boolean indicating if a row was created (for `upsert`).
+*   **`created`**: Boolean indicating if a row was created (for `upsert`). Only Postgres and MySQL can reliably tell insert from update (Postgres via its `xmax` system column, MySQL via its `affectedRows` convention); CockroachDB (no `xmax` equivalent), MariaDB, and SQLite always return `undefined` here - check `changes`/`firstId` instead if you need to confirm the row exists.
 
 ---
 
