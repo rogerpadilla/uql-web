@@ -7,30 +7,30 @@ import { LinkCard } from '@astrojs/starlight/components';
 
 Our [open-source benchmark](https://github.com/rogerpadilla/ts-orm-benchmark) measures **pure SQL generation speed**, with no database I/O, to isolate the overhead each tool adds to every query. This page always reflects the latest run; the [original announcement post](/blog/in-search-of-the-fastest-typescript-orm) tells the full story.
 
-> Node.js v24, Apple Silicon M-series, July 2026. Latest stable of every entry: TypeORM 1.0.0, MikroORM 7.1.5, Sequelize 6.37.8, Drizzle 0.45.2, Knex 3.3.0, Kysely 0.29.3, UQL 0.15.4. All values in **ops/sec** (higher is better), averaged over 3 runs.
+> Node.js v24, Apple Silicon M-series, July 2026. Latest stable of every entry: TypeORM 1.0.0, MikroORM 7.1.5, Sequelize 6.37.8, Drizzle 0.45.2, Knex 3.3.0, Kysely 0.29.3, UQL 0.15.5. All values in **ops/sec** (higher is better), averaged over 3 runs.
 
 ## Results
 
 | Query Type | [UQL](https://uql-orm.dev) | [Sequelize](https://sequelize.org) | [TypeORM](https://typeorm.io) | [MikroORM](https://mikro-orm.io) | [Drizzle](https://orm.drizzle.team) | [Knex](https://knexjs.org) | [Kysely](https://kysely.dev) |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| INSERT (10 rows) | 473K | 208K | 42K | 114K | 13K | **487K** | 197K |
-| UPDATE (SET+WHERE) | **1,761K** | 241K | 294K | 229K | 80K | 719K | 827K |
-| UPSERT (ON CONFLICT) | **612K** | 340K | 269K | 272K | 37K | 445K | 342K |
-| DELETE (WHERE) | **3,282K** | 1,370K | 527K | 267K | 212K | 1,102K | 1,276K |
-| SELECT (1 field) | **3,349K** | 3,108K | 613K | 585K | 233K | 1,151K | 1,574K |
-| SELECT (WHERE+SORT+LIMIT) | **1,161K** | 411K | 280K | 76K | 61K | 619K | 429K |
-| SELECT (complex $or) | **619K** | 157K | 164K | 28K | 35K | 250K | 219K |
-| AGGREGATE (GROUP+HAVING) | **1,527K** | 415K | 292K | 73K | 72K | 329K | 217K |
+| INSERT (10 rows) | **472K** | 205K | 43K | 108K | 11K | 464K | 187K |
+| UPDATE (SET+WHERE) | **1,748K** | 237K | 294K | 210K | 74K | 699K | 729K |
+| UPSERT (ON CONFLICT) | **591K** | 343K | 266K | 259K | 34K | 451K | 314K |
+| DELETE (WHERE) | **3,388K** | 1,233K | 519K | 250K | 195K | 1,093K | 1,177K |
+| SELECT (1 field) | **3,951K** | 3,154K | 605K | 565K | 217K | 1,117K | 1,456K |
+| SELECT (WHERE+SORT+LIMIT) | **1,299K** | 396K | 285K | 74K | 56K | 607K | 362K |
+| SELECT (complex $or) | **663K** | 149K | 167K | 28K | 32K | 242K | 195K |
+| AGGREGATE (GROUP+HAVING) | **1,494K** | 404K | 280K | 73K | 67K | 326K | 187K |
 
-UQL is the fastest entry in 7 of 8 categories, on average **~2.1x** faster than the next fastest tool, and tied with the standalone query builder **Knex** on the 8th, batch INSERT: across repeated runs the two land within ~3% of each other and either can come out ahead (this run: Knex 487K vs. UQL 473K), unlike the other 7 categories, where UQL's lead is large and holds steady across every run. Explore the [interactive charts](https://rogerpadilla.github.io/ts-orm-benchmark/chart.html).
+UQL is the fastest entry in all 8 categories, on average **~2.1x** faster than the next fastest tool. Seven of those wins are clear, ranging from **1.2x to 3.7x**. The eighth, batch INSERT, is the narrowest: UQL edges the standalone query builder **Knex** by a few percent (472K vs. 464K here) and stays ahead of it across every run, rather than trading the lead run to run as earlier versions did. Explore the [interactive charts](https://rogerpadilla.github.io/ts-orm-benchmark/chart.html).
 
 | Operation group | Avg advantage (vs. next fastest) |
 | :--- | ---: |
-| Reads (`SELECT*`, sort/limit, `AGGREGATE`) | **~2.3x** |
-| Writes (`UPDATE/UPSERT/DELETE`) | **~2.0x** |
+| Reads (`SELECT`, filter, complex, `AGGREGATE`) | **~2.4x** |
+| Writes (`UPDATE/UPSERT/DELETE`) | **~2.1x** |
 
 :::tip
-**Query Builder vs. ORM**: The benchmark includes Knex and Kysely (pure query builders) to show that UQL is at least as fast as tools without the overhead of entities and relations, and outright faster in every category except the INSERT toss-up with Knex.
+**Query Builder vs. ORM**: The benchmark includes Knex and Kysely (pure query builders) to show that UQL keeps pace with tools that carry no entity or relation overhead. It is faster in every category, most by a wide margin and batch INSERT by a slim one.
 :::
 
 ## Why UQL is fast

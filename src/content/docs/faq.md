@@ -14,7 +14,7 @@ UQL is an ORM for TypeScript that offers:
 - **Serializable queries**: plain JSON objects you can cache, send over HTTP, or store
 - **No codegen**: your TypeScript classes are the schema, no build step needed
 - **One API everywhere**: the same syntax works on PostgreSQL, MySQL, MongoDB, SQLite, and edge runtimes
-- **Fast SQL generation**: fastest in 7 of 8 categories of our [open benchmark](/benchmark), tied with Knex on the 8th
+- **Fast SQL generation**: fastest in all 8 categories of our [open benchmark](/benchmark), including a narrow edge over the query builder Knex on batch INSERT
 
 ### What makes UQL the perfectionist ORM?
 
@@ -22,7 +22,7 @@ One design decision is behind it: a UQL query is plain data, not a compiled meth
 
 - **The most portable**: the same query object runs on PostgreSQL, MySQL, MariaDB, SQLite, MongoDB, and the edge, and serializes to travel over HTTP between server and client unchanged.
 - **The most capable out of the box**: [native semantic and vector search](/ai-semantic-search), [non-bypassable multi-tenant security filters](/multi-tenancy), [soft-delete with restore](/entities/soft-delete), and [entity-first migrations](/migrations), all things that are raw SQL, a plugin, or unsupported elsewhere, plus an optional [REST API](/extensions-http) and [typed browser client](/extensions-browser) in the same package when you need them.
-- **The fastest**: [fastest in 7 of 8 benchmark categories](/benchmark), ~2.1x faster on average than the next tool, tied with the query builder Knex on the 8th (batch INSERT), and quicker than raw query builders like Knex and Kysely on everything else, despite them not even carrying entities or relations.
+- **The fastest**: [fastest in all 8 benchmark categories](/benchmark), ~2.1x faster on average than the next tool, quicker than raw query builders like Knex and Kysely despite them not even carrying entities or relations. Seven wins are clear (1.2x to 3.7x); batch INSERT is a narrow edge over Knex.
 - **The lowest-friction**: no codegen, no DSL, no build step. Your TypeScript classes are the schema.
 
 Drizzle picks lean and fast; Prisma and TypeORM pick full-featured and heavy. UQL is built so you don't pick. See the [full comparison](/comparison).
@@ -230,7 +230,7 @@ Yes. Mark a field with `@Field({ softDelete: true })` and deletes soft-delete au
 
 ### What's the performance like?
 
-In our [open benchmark](/benchmark) of SQL-generation speed, UQL is the fastest entry in 7 of 8 query categories, on average ~2.1× faster than the runner-up (tied with Knex, a pure query builder, on the 8th: batch INSERT). Two design choices drive this:
+In our [open benchmark](/benchmark) of SQL-generation speed, UQL is the fastest entry in all 8 query categories, on average ~2.1× faster than the runner-up (seven wins are clear at 1.2× to 3.7×; batch INSERT is a narrow edge over the pure query builder Knex). Two design choices drive this:
 - Schema metadata (tables, columns, relations) is pre-computed once at startup
 - SQL is written directly into a string buffer, avoiding intermediate objects
 
