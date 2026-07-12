@@ -134,11 +134,6 @@ button {
     animation-delay: 0.5s;
 }
 
-/* Smooth entry for content sections */
-section, .sl-markdown-content > *:not(.hero) {
-    animation: fade-in-up 0.6s ease-out both;
-}
-
 /* Improve Code Blocks */
 .expressive-code pre {
     border: 1px solid var(--sl-color-gray-5);
@@ -190,40 +185,26 @@ section, .sl-markdown-content > *:not(.hero) {
     }
 }
 
-.main-frame {
-    view-transition-name: main-content;
+/* Give the page title its own view-transition-name so it morphs on its own
+   (position/size interpolated by the browser) instead of just cross-fading
+   with the rest of the page - old title cross-fades and resizes into the
+   new one, which reads a lot smoother when titles change length. */
+#_top {
+    view-transition-name: page-title;
 }
 
-/* Snapshot the sidebar separately from the root so it never participates in
-   the page animation: with its scroll position restored before first paint,
-   old and new snapshots are identical and the pane stays visually frozen. */
-.sidebar-pane {
-    view-transition-name: site-sidebar;
+::view-transition-group(page-title) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-::view-transition-old(root),
-::view-transition-new(root),
-::view-transition-old(site-sidebar),
-::view-transition-new(site-sidebar) {
-    animation: none;
-}
-
-::view-transition-old(main-content) {
-    animation: vt-fade-out 150ms cubic-bezier(0.4, 0, 1, 1) both;
-}
-
-::view-transition-new(main-content) {
-    animation: vt-slide-fade-in 250ms cubic-bezier(0, 0, 0.2, 1) both;
-}
-
-@keyframes vt-fade-out {
-    to { opacity: 0; }
-}
-
-@keyframes vt-slide-fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
+/* Browsers don't skip View Transitions for reduced-motion automatically;
+   collapse every named transition above ourselves. */
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
     }
 }
 
