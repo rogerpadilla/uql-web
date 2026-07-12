@@ -198,6 +198,33 @@ button {
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Content settles in while the title (above) anchors it. A 10px bottom-up
+   rise keeps the shift small enough not to compete with the title's own
+   morph, with an expo ease-out (quick start, long soft settle) for a
+   modern, premium feel rather than a linear/basic ease-out curve. */
+.main-frame {
+    view-transition-name: main-content;
+}
+
+::view-transition-old(main-content) {
+    animation: vt-fade-out 120ms ease-in both;
+}
+
+::view-transition-new(main-content) {
+    animation: vt-slide-fade-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes vt-fade-out {
+    to { opacity: 0; }
+}
+
+@keyframes vt-slide-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
 /* Browsers don't skip View Transitions for reduced-motion automatically;
    collapse every named transition above ourselves. */
 @media (prefers-reduced-motion: reduce) {
