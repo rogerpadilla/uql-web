@@ -106,7 +106,7 @@ const results = await prisma.$queryRaw`
 ```
 
 ```ts title="TypeORM"
-const results = await repo.createQueryBuilder('item')
+const results = await manager.createQueryBuilder(Item, 'item')
   .orderBy('item.embedding <-> :vector')
   .setParameter('vector', queryVector)
   .limit(10)
@@ -169,7 +169,7 @@ const results = await prisma.user.findMany({
 ```
 
 ```ts title="TypeORM"
-const results = await repo.find({
+const results = await manager.find(User, {
   select: { id: true, name: true, email: true },
   where: { name: 'Jane' },
   order: { createdAt: 'DESC' },
@@ -222,7 +222,7 @@ const results = await prisma.user.findMany({
 ```
 
 ```ts title="TypeORM"
-const results = await repo.find({
+const results = await manager.find(User, {
   select: { id: true, name: true },
   relations: { company: true },
 });
@@ -346,14 +346,14 @@ await prisma.user.delete({ where: { id: user.id } });
 ```
 
 ```ts title="TypeORM"
-const user = repo.create({ name: 'Jane' });
-await repo.save(user);
+const user = manager.create(User, { name: 'Jane' });
+await manager.save(user);
 
-await repo.update(user.id, { name: 'Jane D.' });
+await manager.update(User, user.id, { name: 'Jane D.' });
 
-await repo.update({ status: 'inactive' }, { status: 'archived' });
+await manager.update(User, { status: 'inactive' }, { status: 'archived' });
 
-await repo.delete(user.id);
+await manager.delete(User, user.id);
 ```
 
 ```ts title="UQL"
@@ -421,7 +421,7 @@ export class User {
   @DeleteDateColumn() deletedAt: Date;
 }
 // Native support for soft-deletion and automatic filtering
-await repo.softDelete(id);
+await manager.softDelete(User, id);
 ```
 
 ```ts title="UQL"
@@ -476,7 +476,7 @@ const results = await prisma.user.findMany({
 ```ts title="TypeORM"
 import { Between, ILike, Not, In } from 'typeorm';
 
-const results = await repo.findBy({
+const results = await manager.findBy(User, {
   age: Between(18, 65),
   name: ILike('A%'),
   status: Not(In(['banned', 'inactive'])),
@@ -541,7 +541,7 @@ const results = await prisma.user.findMany({ where: { status: 'active' } });
 
 ```ts title="TypeORM"
 app.get('/api/users', async (req, res) => {
-  const results = await repo.find({ where: { id: req.query.id } });
+  const results = await manager.find(User, { where: { id: req.query.id } });
   res.json(results);
 });
 ```
@@ -638,7 +638,7 @@ while (true) {
 ```
 
 ```ts title="TypeORM"
-const results = await repo.createQueryBuilder('user').stream();
+const results = await manager.createQueryBuilder(User, 'user').stream();
 results.on('data', (user) => writeToCsv(user));
 ```
 

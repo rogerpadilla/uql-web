@@ -40,7 +40,7 @@ In Prisma, TypeORM, and Sequelize, a plain query grabs its own pooled connection
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 ### 1. Complex Filtering & Search
-How to handle multiple conditions and range filters.
+How to filter on multiple conditions and ranges, then sort and page the results.
 
 <Tabs>
   <TabItem label="Prisma/Drizzle">
@@ -51,13 +51,16 @@ How to handle multiple conditions and range filters.
         age: { gte: 18 },
         status: 'active',
         email: { contains: '@uql-orm.dev' }
-      }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10
     });
 
     // Drizzle
-    db.select().from(users).where(
-      and(gte(users.age, 18), eq(users.status, 'active'), like(users.email, '%@uql-orm.dev%'))
-    );
+    db.select().from(users)
+      .where(and(gte(users.age, 18), eq(users.status, 'active'), like(users.email, '%@uql-orm.dev%')))
+      .orderBy(desc(users.createdAt))
+      .limit(10);
     ```
   </TabItem>
   <TabItem label="Mongoose">
@@ -66,6 +69,33 @@ How to handle multiple conditions and range filters.
       age: { $gte: 18 },
       status: 'active',
       email: { $regex: '@uql-orm.dev' }
+    })
+      .sort({ createdAt: -1 })
+      .limit(10);
+    ```
+  </TabItem>
+  <TabItem label="TypeORM">
+    ```ts
+    manager.find(User, {
+      where: {
+        age: MoreThanOrEqual(18),
+        status: 'active',
+        email: Like('%@uql-orm.dev%')
+      },
+      order: { createdAt: 'DESC' },
+      take: 10
+    });
+    ```
+  </TabItem>
+  <TabItem label="MikroORM">
+    ```ts
+    em.find(User, {
+      age: { $gte: 18 },
+      status: 'active',
+      email: { $like: '%@uql-orm.dev%' }
+    }, {
+      orderBy: { createdAt: 'DESC' },
+      limit: 10
     });
     ```
   </TabItem>
@@ -76,14 +106,16 @@ How to handle multiple conditions and range filters.
         age: { $gte: 18 },
         status: 'active',
         email: { $includes: '@uql-orm.dev' }
-      }
+      },
+      $sort: { createdAt: 'desc' },
+      $limit: 10
     });
     ```
   </TabItem>
 </Tabs>
 
 ### 2. Deeply Nested Relations
-Fetching a user, their posts, and the comments on those posts.
+Fetching the latest users, their posts, and the comments on those posts.
 
 <Tabs>
   <TabItem label="Prisma/Drizzle">
@@ -94,14 +126,49 @@ Fetching a user, their posts, and the comments on those posts.
         posts: {
           include: { comments: true }
         }
-      }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10
     });
 
     // Drizzle (Relational API)
     db.query.users.findMany({
       with: {
         posts: { with: { comments: true } }
-      }
+      },
+      orderBy: (users, { desc }) => desc(users.createdAt),
+      limit: 10
+    });
+    ```
+  </TabItem>
+  <TabItem label="Mongoose">
+    ```ts
+    User.find()
+      .populate({
+        path: 'posts',
+        populate: { path: 'comments' }
+      })
+      .sort({ createdAt: -1 })
+      .limit(10);
+    ```
+  </TabItem>
+  <TabItem label="TypeORM">
+    ```ts
+    manager.find(User, {
+      relations: {
+        posts: { comments: true }
+      },
+      order: { createdAt: 'DESC' },
+      take: 10
+    });
+    ```
+  </TabItem>
+  <TabItem label="MikroORM">
+    ```ts
+    em.find(User, {}, {
+      populate: ['posts', 'posts.comments'],
+      orderBy: { createdAt: 'DESC' },
+      limit: 10
     });
     ```
   </TabItem>
@@ -114,7 +181,9 @@ Fetching a user, their posts, and the comments on those posts.
             comments: true
           }
         }
-      }
+      },
+      $sort: { createdAt: 'desc' },
+      $limit: 10
     });
     ```
   </TabItem>
