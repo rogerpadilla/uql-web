@@ -10,6 +10,9 @@ import { projectDescription } from './src/constants';
 
 const config: AstroUserConfig = {
   site: 'https://uql-orm.dev',
+  // Normalize away trailing slashes so the PostHog /ingest proxy rewrites match
+  // capture paths like /ingest/i/v0/e/ (otherwise they fall through to the 404 route).
+  trailingSlash: 'never',
   integrations: [
     mermaid({ theme: 'forest', autoTheme: true, enableLog: false }),
     starlight({
