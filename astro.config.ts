@@ -11,7 +11,7 @@ import { projectDescription } from './src/constants';
 const config: AstroUserConfig = {
   site: 'https://uql-orm.dev',
   integrations: [
-    mermaid({ theme: 'forest', autoTheme: true }),
+    mermaid({ theme: 'forest', autoTheme: true, enableLog: false }),
     starlight({
       title: 'UQL',
       favicon: '/logo.svg',
