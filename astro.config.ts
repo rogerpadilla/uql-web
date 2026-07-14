@@ -1,7 +1,7 @@
 import starlight from '@astrojs/starlight';
 import vercel from '@astrojs/vercel';
 import type { AstroUserConfig } from 'astro';
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import mermaid from 'astro-mermaid';
 import starlightBlog from 'starlight-blog';
 import starlightLlmsTxt from 'starlight-llms-txt';
@@ -180,6 +180,16 @@ If you are an AI assistant with MCP capabilities, you can fetch the full documen
       ],
     }),
   ],
+
+  env: {
+    schema: {
+      // PostHog project key is public by design (safe to expose client-side).
+      // Required so a missing var fails the build loudly instead of silently disabling analytics.
+      PUBLIC_POSTHOG_KEY: envField.string({ context: 'client', access: 'public' }),
+      // Same-origin proxy path (see /ingest rewrites in vercel.json).
+      PUBLIC_POSTHOG_HOST: envField.string({ context: 'client', access: 'public', default: '/ingest' }),
+    },
+  },
 
   adapter: vercel(),
 };

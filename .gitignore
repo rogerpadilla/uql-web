@@ -11,3 +11,4 @@ out
 .astro
 .vercel
 .env*
+!.env.example

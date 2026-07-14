@@ -75,12 +75,14 @@ if (isHome) {
 <script>
   // PostHog product analytics. Runs once; `defaults` enables History API pageview
   // capture, so SPA navigations (astro-vtbot / ClientRouter) are tracked too.
-  // api_host is a same-origin proxy (see /ingest rewrites in vercel.json) to stay
-  // resilient to ad blockers; ui_host points PostHog app links at the real host.
+  // Key/host come from typed env (astro:env/client). api_host is a same-origin
+  // proxy (see /ingest rewrites in vercel.json) to stay resilient to ad blockers;
+  // ui_host points PostHog app links at the real host.
+  import { PUBLIC_POSTHOG_HOST, PUBLIC_POSTHOG_KEY } from 'astro:env/client';
   import posthog from 'posthog-js';
 
-  posthog.init('phc_Av42RLeafnQGdW9Ex3gYKoa9oBCygcNzRd7MSyQYqNZz', {
-    api_host: '/ingest',
+  posthog.init(PUBLIC_POSTHOG_KEY, {
+    api_host: PUBLIC_POSTHOG_HOST,
     ui_host: 'https://us.posthog.com',
     defaults: '2026-05-30',
     person_profiles: 'identified_only',
