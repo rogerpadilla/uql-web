@@ -191,7 +191,7 @@ Retrieve the top matches by vector similarity, filtered by metadata - the core r
   </TabItem>
 </Tabs>
 
-Only UQL keeps the metadata filter and vector ranking in one type-safe JSON query that runs unchanged across pgvector, CockroachDB, MariaDB, SQLite, and MongoDB Atlas. The others drop to raw SQL (Prisma, TypeORM, MikroORM), a Postgres-only helper (Drizzle), or an Atlas-specific aggregation (Mongoose). See [AI & RAG](/ai-semantic-search) for the full ingestion-to-retrieval walkthrough.
+Only UQL keeps the metadata filter and vector ranking in one type-safe JSON query that runs unchanged across pgvector, CockroachDB, MariaDB, SQLite, and MongoDB Atlas. The others are tied to one database or step outside the type-safe API: Prisma and TypeORM drop to raw SQL, Drizzle and MikroORM use Postgres-only pgvector helpers, and Mongoose needs an Atlas-specific aggregation. See [AI & RAG](/ai-semantic-search) for the full ingestion-to-retrieval walkthrough.
 
 ### 3. Atomic JSON Updates
 Updating a specific key inside a JSONB column without overwriting the whole object.
