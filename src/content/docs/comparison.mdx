@@ -246,6 +246,8 @@ const results = await querier.findMany(User, {
 ## Virtual Fields
 
 ```ts title="Drizzle"
+import { sql } from 'drizzle-orm';
+
 const results = await db.select({
   id: users.id,
   fullName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`
@@ -317,6 +319,8 @@ class User {
 ## Mutations
 
 ```ts title="Drizzle"
+import { eq } from 'drizzle-orm';
+
 const [user] = await db.insert(users).values({ name: 'Jane' }).returning();
 
 await db.update(users).set({ name: 'Jane D.' }).where(eq(users.id, user.id));
@@ -385,6 +389,8 @@ By comparison, Prisma's `createMany` returns only a row count (`createManyAndRet
 ## Soft Delete
 
 ```ts title="Drizzle"
+import { eq, isNull } from 'drizzle-orm';
+
 // No built-in soft delete. Requires manual filter management:
 await db.update(users).set({ deletedAt: new Date() }).where(eq(users.id, 1));
 const results = await db.select().from(users).where(isNull(users.deletedAt));
@@ -526,6 +532,8 @@ See [JSON / JSONB](/querying/json) for generated SQL examples and practical base
 ## Network Boundaries & APIs
 
 ```ts title="Drizzle"
+import { eq } from 'drizzle-orm';
+
 app.get('/api/users', async (req, res) => {
   const results = await db.select().from(users).where(eq(users.id, req.query.id));
   res.json(results);
