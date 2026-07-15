@@ -90,9 +90,11 @@ const results = await db.select()
 ```
 
 ```ts title="MikroORM"
+import { cosineDistance } from 'pgvector/mikro-orm';
+
 const results = await em.createQueryBuilder(Item)
   .select('*')
-  .orderBy({ ['embedding <-> ?']: [queryVector] })
+  .orderBy({ [cosineDistance('embedding', queryVector)]: 'ASC' })
   .limit(10)
   .getResult();
 ```
@@ -100,14 +102,14 @@ const results = await em.createQueryBuilder(Item)
 ```ts title="Prisma"
 const results = await prisma.$queryRaw`
   SELECT * FROM "Item"
-  ORDER BY embedding <-> ${queryVector}::vector
+  ORDER BY embedding <=> ${queryVector}::vector
   LIMIT 10
 `;
 ```
 
 ```ts title="TypeORM"
 const results = await manager.createQueryBuilder(Item, 'item')
-  .orderBy('item.embedding <-> :vector')
+  .orderBy('item.embedding <=> :vector')
   .setParameter('vector', queryVector)
   .limit(10)
   .getMany();
@@ -121,7 +123,7 @@ const results = await querier.findMany(Item, {
 });
 ```
 
-**In practice:** Drizzle ships native pgvector helpers (`cosineDistance`, `l2Distance`) for PostgreSQL. The other ORMs treat vector similarity as an "edge case" requiring raw SQL and database-specific syntax (like `<->`). UQL handles it as a native, type-safe operator across dialects.
+**In practice:** Drizzle ships native pgvector helpers (`cosineDistance`, `l2Distance`) for PostgreSQL, and MikroORM offers the same through the community `pgvector/mikro-orm` adapter. Prisma and TypeORM drop to raw SQL with database-specific operators (like `<=>`). All of these are Postgres-only. UQL handles vector search as a native, type-safe operator across PostgreSQL, CockroachDB, MariaDB, SQLite, and MongoDB Atlas.
 
 | Ability | **Drizzle** | **MikroORM** | **Prisma** | **TypeORM** | **UQL** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
