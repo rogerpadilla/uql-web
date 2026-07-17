@@ -81,7 +81,7 @@ SELECT SUM(`amount`) `revenue` FROM `Order`
 ### `$where` vs `$having`
 
 - **[`$where`](/querying/filters)**: Filters rows **before** grouping (`WHERE` clause).
-- **`$having`**: Filters groups **after** aggregation (`HAVING` clause).
+- **[`$having`](#having-operators)**: Filters groups **after** aggregation (`HAVING` clause).
 
 ```ts title="You write"
 const results = await querier.aggregate(Order, {
