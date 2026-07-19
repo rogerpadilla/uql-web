@@ -296,8 +296,8 @@ const results = await manager
 
 ```ts title="UQL"
 const results = await querier.aggregate(User, {
-  $group: { status: true },                                  // GROUP BY column, typed like $select
-  $agg: { count: { $count: '*' }, avgAge: { $avg: 'age' } }, // computed columns
+  $group: { status: true }, 
+  $agg: { count: { $count: '*' }, avgAge: { $avg: 'age' } },
   $having: { avgAge: { $gt: 30 } },
   $sort: { count: -1 },
   $limit: 10,
