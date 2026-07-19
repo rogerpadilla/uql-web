@@ -21,7 +21,7 @@ function entityRouter<E extends object>(entity: Type<E>) {
       .input(type<Query<E>>())
       .handler(({ input }) => pool.findMany(entity, input)),
     insertOne: os
-      .input(type<E>((value) => value)) // identity mapper: required when the input type is an open generic
+      .input(type<E>((value) => value)) // optional identity mapper; type<E>() alone also works
       .handler(({ input }) => pool.transaction((querier) => querier.insertOne(entity, input))),
   };
 }

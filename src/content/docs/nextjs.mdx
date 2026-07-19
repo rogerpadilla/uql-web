@@ -27,7 +27,7 @@ npm install uql-orm pg server-only
 
 ## 2. Define entities and UQL pool
 
-UQL's decorators need two flags that `create-next-app` does not include; add them to `tsconfig.json` (both Turbopack and Webpack support them):
+UQL's decorators need two flags that `create-next-app` does not include; add them to `tsconfig.json`:
 
 ```json
 {
@@ -37,6 +37,10 @@ UQL's decorators need two flags that `create-next-app` does not include; add the
   }
 }
 ```
+
+:::caution[Turbopack and `emitDecoratorMetadata`]
+`experimentalDecorators` works under both builders, but `emitDecoratorMetadata` (which UQL uses to auto-infer a field's type when you omit `type`) is unreliable under Turbopack, now the default for `next dev`/`next build` in Next.js 16. If a field's type comes back wrong, either build with Webpack (`next dev --webpack`), set `type` explicitly on every `@Field`/`@Id` (no metadata needed), or use the [imperative entity API](/entities/imperative), which defines entities without decorators.
+:::
 
 Create an `entities.ts` file in your app (for example in `src/db/entities.ts`):
 

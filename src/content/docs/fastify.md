@@ -45,7 +45,7 @@ fastify.all<{
 await fastify.listen({ port: 3000 });
 ```
 
-This serves the full [wire protocol](/extensions-http#wire-protocol) for each entity (list, get, count, create, upsert, bulk operations, delete). `createRequestHandler` returns `undefined` for an unknown entity or route, so `reply.callNotFound()` falls through to your own routes, and thrown hook errors map to the canonical [`{ error: { message, code } }` envelope](/extensions-http#wire-protocol) via `toErrorResponse` (a numeric `status` on the error becomes the HTTP status).
+This serves the full [wire protocol](/extensions-http#wire-protocol) for each entity (list, get, count, create, upsert, bulk operations, delete). `createRequestHandler` returns `undefined` for an unknown entity or route, so `reply.callNotFound()` hands those requests to Fastify's not-found handler (a `404`) instead of the CRUD path. Thrown hook errors map to the canonical [`{ error: { message, code } }` envelope](/extensions-http#wire-protocol) via `toErrorResponse` (a numeric `status` on the error becomes the HTTP status).
 
 :::note[`QUERY` transport not covered]
 `fastify.all` registers the standard verbs only, so this bridge serves the `GET` read transport but not the [`QUERY` method](/extensions-http#http-query-rfc-10008). Fastify parses `application/json` bodies out of the box; for the write routes that is all you need.
@@ -74,5 +74,5 @@ Hand-folding `$where` works, but for tenant isolation prefer passing `getContext
 :::
 
 :::tip
-Use the bridge for entity CRUD and hand-written Fastify routes for everything else; unknown routes fall through via `callNotFound()`, so both coexist under the same prefix. For per-procedure contracts with an end-to-end typed client, see [tRPC](/trpc) and [oRPC](/orpc) instead.
+Use the bridge for entity CRUD and hand-written Fastify routes for everything else; register those routes on their own paths (Fastify routes them directly, before this catch-all is reached), so both coexist. For per-procedure contracts with an end-to-end typed client, see [tRPC](/trpc) and [oRPC](/orpc) instead.
 :::

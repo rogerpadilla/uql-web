@@ -27,6 +27,8 @@ This mounts the full [wire protocol](/extensions-http#wire-protocol) for each en
 `.mount()` only claims the `/api` prefix, so your own Elysia routes, plugins, and lifecycle hooks live side by side with the generated CRUD. Keep hand-written routes for read-modify-write logic, multi-entity transactions, aggregations, file uploads, and streaming:
 
 ```ts
+import { cors } from '@elysiajs/cors';
+
 new Elysia()
   .use(cors())
   .get('/health', () => 'ok')
