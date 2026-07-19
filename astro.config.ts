@@ -78,17 +78,17 @@ const config: AstroUserConfig = {
               link: '/getting-started',
             },
             {
-              label: 'Switching to UQL',
-              link: '/switching-to-uql',
-              badge: { text: 'New', variant: 'success' },
-            },
-            {
               label: 'Comparison',
               link: '/comparison',
             },
             {
               label: 'Benchmark',
               link: '/benchmark',
+            },
+            {
+              label: 'Switching to UQL',
+              link: '/switching-to-uql',
+              badge: { text: 'New', variant: 'success' },
             },
             {
               label: 'AI & RAG',
@@ -126,18 +126,18 @@ const config: AstroUserConfig = {
         {
           label: 'Ecosystem',
           items: [
-            { label: 'Express', link: '/extensions-express' },
-            { label: 'Fastify', link: '/fastify', badge: { text: 'New', variant: 'success' } },
-            { label: 'NestJS', link: '/nestjs' },
-            { label: 'Next.js', link: '/nextjs' },
-            { label: 'TanStack Start', link: '/tanstack-start', badge: { text: 'New', variant: 'success' } },
             {
               label: 'HTTP (any framework)',
               link: '/extensions-http',
               badge: { text: 'New', variant: 'success' },
             },
+            { label: 'Express', link: '/extensions-express' },
+            { label: 'Fastify', link: '/fastify', badge: { text: 'New', variant: 'success' } },
             { label: 'Hono', link: '/hono', badge: { text: 'New', variant: 'success' } },
             { label: 'Elysia', link: '/elysia', badge: { text: 'New', variant: 'success' } },
+            { label: 'NestJS', link: '/nestjs' },
+            { label: 'Next.js', link: '/nextjs' },
+            { label: 'TanStack Start', link: '/tanstack-start', badge: { text: 'New', variant: 'success' } },
             { label: 'tRPC', link: '/trpc' },
             { label: 'oRPC', link: '/orpc', badge: { text: 'New', variant: 'success' } },
             { label: 'Browser', link: '/extensions-browser' },
