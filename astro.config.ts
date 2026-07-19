@@ -128,7 +128,6 @@ const config: AstroUserConfig = {
             {
               label: 'HTTP (any framework)',
               link: '/extensions-http',
-              badge: { text: 'New', variant: 'success' },
             },
             { label: 'Express', link: '/extensions-express' },
             { label: 'Fastify', link: '/fastify', badge: { text: 'New', variant: 'success' } },
