@@ -130,7 +130,7 @@ const config: AstroUserConfig = {
               link: '/extensions-http',
             },
             { label: 'Express', link: '/extensions-express' },
-            { label: 'Fastify', link: '/fastify', badge: { text: 'New', variant: 'success' } },
+            { label: 'Fastify', link: '/fastify' },
             { label: 'Hono', link: '/hono', badge: { text: 'New', variant: 'success' } },
             { label: 'Elysia', link: '/elysia', badge: { text: 'New', variant: 'success' } },
             { label: 'NestJS', link: '/nestjs' },
