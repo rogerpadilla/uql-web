@@ -13,13 +13,13 @@ Use `querier.aggregate()` for analytics that involve `GROUP BY`, aggregate funct
 
 ```ts title="You write"
 const results = await querier.aggregate(Order, {
-  $group: {
-    status: true,                    // GROUP BY column
+  $group: { status: true },          // GROUP BY column(s)
+  $agg: {
     total: { $sum: 'amount' },       // SUM("amount") AS "total"
     count: { $count: '*' },          // COUNT(*) AS "count"
   },
-  $having: { count: { $gt: 5 } },   // Post-aggregation filter
-  $sort: { total: -1 },             // ORDER BY total DESC
+  $having: { count: { $gt: 5 } },    // Post-aggregation filter
+  $sort: { total: -1 },              // ORDER BY total DESC
   $limit: 10,
 });
 ```
@@ -52,21 +52,28 @@ LIMIT 10
 ]
 ```
 
-### `$group`
+### `$group` and `$agg`
 
-The `$group` map defines both the grouping columns and the aggregate functions. Each key becomes an alias in the result.
+`$group` lists the columns to group by; `$agg` defines the computed columns, each under an alias you choose. Keeping them separate makes both fully type-safe: `$group` keys are checked against your entity's fields (like `$select`), and the field references inside `$agg` are typed too, so a typo is a compile error.
 
-- **`true`**: Group by this column (`GROUP BY "column"`)
+**`$group`** - grouping columns (`GROUP BY`):
+
+- **`{ status: true }`**: `GROUP BY "status"`
+
+**`$agg`** - computed columns (`alias → aggregate function`):
+
 - **`{ $count: '*' }`**: `COUNT(*)`
 - **`{ $sum: 'field' }`**: `SUM("field")`
 - **`{ $avg: 'field' }`**: `AVG("field")`
 - **`{ $min: 'field' }`**: `MIN("field")`
 - **`{ $max: 'field' }`**: `MAX("field")`
 
+Both keys are optional: use `$group` alone for a `DISTINCT`-style query, or `$agg` alone for a grand total across all rows.
+
 ```ts title="You write"
 // Total revenue with no grouping
 const [{ revenue }] = await querier.aggregate(Order, {
-  $group: { revenue: { $sum: 'amount' } },
+  $agg: { revenue: { $sum: 'amount' } },
 });
 ```
 
@@ -85,10 +92,8 @@ SELECT SUM(`amount`) `revenue` FROM `Order`
 
 ```ts title="You write"
 const results = await querier.aggregate(Order, {
-  $group: {
-    status: true,
-    count: { $count: '*' },
-  },
+  $group: { status: true },
+  $agg: { count: { $count: '*' } },
   $where: { createdAt: { $gte: new Date('2025-01-01') } },
   $having: { count: { $gt: 10 } },
 });
@@ -131,10 +136,8 @@ Aggregate results can be sorted by any alias and paginated using `$skip` and `$l
 
 ```ts title="You write"
 const results = await querier.aggregate(User, {
-  $group: {
-    status: true,
-    count: { $count: '*' },
-  },
+  $group: { status: true },
+  $agg: { count: { $count: '*' } },
   $sort: { count: -1 },
   $skip: 20,
   $limit: 10,

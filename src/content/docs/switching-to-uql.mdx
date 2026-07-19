@@ -201,7 +201,93 @@ How to filter on multiple conditions and ranges, then sort and page the results.
   </TabItem>
 </Tabs>
 
-### 3. Atomic JSON Updates
+### 3. Aggregation & Grouping
+Group rows by a column, compute aggregates (`COUNT`, `AVG`), filter the groups with `HAVING`, then sort and page.
+
+<Tabs>
+  <TabItem label="Prisma">
+    ```ts
+    const results = await prisma.user.groupBy({
+      by: ['status'],
+      _count: { status: true },
+      _avg: { age: true },
+      having: { age: { _avg: { gt: 30 } } },
+      orderBy: { _count: { status: 'desc' } },
+      take: 10,
+    });
+    ```
+  </TabItem>
+  <TabItem label="Drizzle">
+    ```ts
+    import { count, avg, gt, desc } from 'drizzle-orm';
+
+    const results = await db
+      .select({
+        status: users.status,
+        count: count(),
+        avgAge: avg(users.age),
+      })
+      .from(users)
+      .groupBy(users.status)
+      .having(({ avgAge }) => gt(avgAge, 30))
+      .orderBy(desc(count()))
+      .limit(10);
+    ```
+  </TabItem>
+  <TabItem label="Mongoose">
+    ```ts
+    const results = await User.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 }, avgAge: { $avg: '$age' } } },
+      { $match: { avgAge: { $gt: 30 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+    ]);
+    ```
+  </TabItem>
+  <TabItem label="TypeORM">
+    ```ts
+    const results = await manager
+      .createQueryBuilder(User, 'user')
+      .select('user.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .addSelect('AVG(user.age)', 'avgAge')
+      .groupBy('user.status')
+      .having('AVG(user.age) > :minAge', { minAge: 30 })
+      .orderBy('count', 'DESC')
+      .limit(10)
+      .getRawMany();
+    ```
+  </TabItem>
+  <TabItem label="MikroORM">
+    ```ts
+    import { sql } from '@mikro-orm/core';
+
+    const results = await em
+      .createQueryBuilder(User, 'u')
+      .select(['u.status', sql`count(*)`.as('count'), sql`avg(u.age)`.as('avgAge')])
+      .groupBy('u.status')
+      .having({ avgAge: { $gt: 30 } })
+      .orderBy({ count: 'desc' })
+      .limit(10)
+      .execute('all');
+    ```
+  </TabItem>
+  <TabItem label="UQL">
+    ```ts
+    const results = await querier.aggregate(User, {
+      $group: { status: true },                                  // GROUP BY column, typed like $select
+      $agg: { count: { $count: '*' }, avgAge: { $avg: 'age' } }, // computed columns
+      $having: { avgAge: { $gt: 30 } },
+      $sort: { count: -1 },
+      $limit: 10,
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+UQL keeps the whole aggregate as one serializable JSON object that runs unchanged on every SQL engine **and** MongoDB, with typo-proof inputs: `$group` columns are checked against the entity like `$select`, the aggregated field references (`$avg: 'age'`) are checked too, and `$having` / `$sort` accept only the grouped columns and computed aliases - a typo is a compile error. The others each trade something: Prisma's `groupBy` is type-safe but SQL-only and keyed by operator (`_avg`, `_count`); Drizzle is type-safe but composes SQL by hand with function helpers; TypeORM and MikroORM drop to query-builder select strings and raw result rows; Mongoose runs a Mongo-only pipeline. See [Aggregate Queries](/querying/aggregate) for the full reference.
+
+### 4. Atomic JSON Updates
 Updating a specific key inside a JSONB column without overwriting the whole object.
 
 <Tabs>

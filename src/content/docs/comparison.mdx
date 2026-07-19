@@ -243,6 +243,71 @@ const results = await querier.findMany(User, {
 
 ---
 
+## Aggregation & Grouping
+
+```ts title="Drizzle"
+import { count, avg, gt, desc } from 'drizzle-orm';
+
+const results = await db
+  .select({ status: users.status, count: count(), avgAge: avg(users.age) })
+  .from(users)
+  .groupBy(users.status)
+  .having(({ avgAge }) => gt(avgAge, 30))
+  .orderBy(desc(count()))
+  .limit(10);
+```
+
+```ts title="MikroORM"
+import { sql } from '@mikro-orm/core';
+
+const results = await em
+  .createQueryBuilder(User, 'u')
+  .select(['u.status', sql`count(*)`.as('count'), sql`avg(u.age)`.as('avgAge')])
+  .groupBy('u.status')
+  .having({ avgAge: { $gt: 30 } })
+  .orderBy({ count: 'desc' })
+  .limit(10)
+  .execute('all');
+```
+
+```ts title="Prisma"
+const results = await prisma.user.groupBy({
+  by: ['status'],
+  _count: { status: true },
+  _avg: { age: true },
+  having: { age: { _avg: { gt: 30 } } },
+  orderBy: { _count: { status: 'desc' } },
+  take: 10,
+});
+```
+
+```ts title="TypeORM"
+const results = await manager
+  .createQueryBuilder(User, 'user')
+  .select('user.status', 'status')
+  .addSelect('COUNT(*)', 'count')
+  .addSelect('AVG(user.age)', 'avgAge')
+  .groupBy('user.status')
+  .having('AVG(user.age) > :minAge', { minAge: 30 })
+  .orderBy('count', 'DESC')
+  .limit(10)
+  .getRawMany();
+```
+
+```ts title="UQL"
+const results = await querier.aggregate(User, {
+  $group: { status: true },                                  // GROUP BY column, typed like $select
+  $agg: { count: { $count: '*' }, avgAge: { $avg: 'age' } }, // computed columns
+  $having: { avgAge: { $gt: 30 } },
+  $sort: { count: -1 },
+  $limit: 10,
+});
+```
+
+**In practice:** Only Prisma and UQL express aggregation declaratively; Drizzle composes it with SQL function helpers, while MikroORM and TypeORM drop to the QueryBuilder and return untyped raw rows. UQL's aggregate is plain JSON - serializable and identical across every SQL engine and MongoDB - and typo-proof: `$group` columns, the aggregated fields in `$agg`, and the `$having` / `$sort` aliases are all type-checked. Prisma's `groupBy` is type-safe too, but keyed by operator (`_avg`, `_count`) and SQL-only.
+
+---
+
 ## Virtual Fields
 
 ```ts title="Drizzle"
