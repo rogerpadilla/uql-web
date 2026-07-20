@@ -34,7 +34,7 @@ graph LR
     DB -- "typed result" --> P
 ```
 
-- **Queries are data, not method chains.** Build them dynamically, store them, diff them, or send them straight from the browser, mobile or micro-service. There's no DSL to learn and nothing to compile.
+- **Queries are data (JSON), not method chains.** Build them dynamically, store them, diff them, or send them straight from the browser, mobile or micro-service. There's no DSL to learn and nothing to compile.
 - **One API everywhere.** The same syntax runs on PostgreSQL, CockroachDB, MySQL, MariaDB, SQLite, LibSQL, Neon, Cloudflare D1, MongoDB, and Bun's native SQL.
 - **No codegen, no build step.** Entities are TypeScript classes, so your code *is* the schema. There's no `.prisma` file to regenerate and no generated client to keep in sync.
 - [The fastest SQL generator!](https://rogerpadilla.github.io/ts-orm-benchmark/chart.html) in all the [ 8 categories](/benchmark) of our open-source [benchmark](https://github.com/rogerpadilla/ts-orm-benchmark), even vs. query builders as Knex and Kysely: ~2.1× faster on average than the runner-up, reaching over 3.9M ops/s on simple SELECTs.
