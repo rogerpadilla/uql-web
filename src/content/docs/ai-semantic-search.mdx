@@ -60,27 +60,28 @@ await pool.withQuerier((querier) =>
 ```ts
 import { pool } from './uql.config.js';
 import { Article } from './entities.js';
+import type { WithDistance } from 'uql-orm';
 
 const queryEmbedding = await embed('TypeScript ORM with vector search'); // any embedding model
 
-const results = await pool.findMany(Article, {
+const results = (await pool.findMany(Article, {
   $where: { category: 'docs' },
   $sort: {
     embedding: {
       $vector: queryEmbedding,
       $distance: 'cosine',
-      $project: 'similarity',
+      $project: 'distance',
     },
   },
   $limit: 10,
-});
+})) as WithDistance<Article, 'distance'>[];
 
 for (const article of results) {
-  console.log(article.title, article.similarity);
+  console.log(article.title, article.distance);
 }
 ```
 
-`$project` adds the computed score to each row (here: `similarity`), so your app can filter, rank, or inspect relevance. UQL infers the projected field from the `$project` literal, so `results` is typed `(Article & { similarity: number })[]` with no cast.
+`$project` adds the computed score to each row (here: `distance`), so your app can filter, rank, or inspect relevance. Annotate the result with the exported `WithDistance<Article, 'distance'>` helper to type the projected field.
 
 The query shape stays the same across PostgreSQL, CockroachDB, MariaDB, SQLite, and MongoDB Atlas.
 

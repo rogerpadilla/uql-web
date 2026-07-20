@@ -445,7 +445,7 @@ await querier.deleteOneById(User, id);
 - accepts records with different column sets in one statement - a missing cell takes the column's default;
 - automatically chunks a batch that would exceed the driver's bind-parameter limit.
 
-Those ids are exact where the database reports them per row (PostgreSQL and MariaDB via `RETURNING`, MongoDB). On MySQL and SQLite they are inferred, but only when it is safe to do so - otherwise the entry is `undefined` instead of a wrong value.
+Those ids are exact where the database reports them per row: PostgreSQL, CockroachDB, MariaDB, and SQLite (including LibSQL/Turso, Cloudflare D1, and Bun SQL) via `RETURNING`, and MongoDB via `insertedIds`. Only MySQL has no `RETURNING`, so its ids are inferred - and only when it is safe to do so, otherwise the entry is `undefined` instead of a wrong value.
 
 By comparison, Prisma's `createMany` returns only a row count (`createManyAndReturn` returns ids, but not on MySQL), and Drizzle, TypeORM, and MikroORM infer a batch's ids from its single reported `insertId` - so a batch mixing explicit and auto-generated ids comes back misnumbered on MySQL.
 

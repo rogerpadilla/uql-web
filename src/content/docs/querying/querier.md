@@ -157,7 +157,7 @@ This lets you serialize queries as plain JSON and pass them across RPC/REST boun
 
 #### Insert IDs
 
-`insertOne`/`insertMany` return the record IDs in payload order. IDs you provide, and IDs generated client-side via `@Id({ onInsert })` (e.g. `randomUUID`), are always returned as-is on every database. Database-generated IDs are exact per row on dialects where the statement itself reports them: PostgreSQL and MariaDB (`INSERT ... RETURNING`) and MongoDB (`insertedIds`). On MySQL and SQLite the driver only reports one generated ID per statement, so UQL infers the rest arithmetically; that inference is applied only when the primary key is auto-increment and no record in the batch supplies an explicit ID (on MySQL it also detects a clustered `auto_increment_increment` stride automatically). In any other case those entries are `undefined` instead of potentially wrong values.
+`insertOne`/`insertMany` return the record IDs in payload order. IDs you provide, and IDs generated client-side via `@Id({ onInsert })` (e.g. `randomUUID`), are always returned as-is on every database. Database-generated IDs are exact per row on dialects where the statement itself reports them: PostgreSQL, CockroachDB, MariaDB, and SQLite (including LibSQL/Turso, Cloudflare D1, and Bun's native SQL) via `INSERT ... RETURNING`, and MongoDB via `insertedIds`. Only MySQL (and Bun SQL's MySQL mode) has no `RETURNING`: its driver reports one generated ID per statement, and UQL infers the rest arithmetically. That inference is applied only when the primary key is auto-increment and no record in the batch supplies an explicit ID (MySQL detects a clustered `auto_increment_increment` stride automatically); otherwise those entries are `undefined` instead of potentially wrong values.
 
 ```ts
 const ids = await querier.insertMany(User, [
@@ -165,8 +165,12 @@ const ids = await querier.insertMany(User, [
   { id: 5000, name: 'Alan' }, // explicit id, and omits email
 ]);
 // Alan's missing email falls back to its column default.
-// ids: PostgreSQL/MariaDB → [1, 5000] · MySQL/SQLite → [undefined, 5000]
+// ids: PostgreSQL/CockroachDB/MariaDB/SQLite → [1, 5000] · MySQL → [undefined, 5000]
 ```
+
+:::caution[MySQL under concurrent writes]
+MySQL's inferred IDs assume the statement got a contiguous block of auto-increment values, which only holds under `innodb_autoinc_lock_mode` 0 (`traditional`) or 1 (`consecutive`). Under mode 2 (`interleaved`, MySQL 8.0's default), other connections inserting into the same table concurrently with your batch can interleave with its allocation, so the inferred IDs may not be contiguous. There's no code-level fix for this - MySQL has no `RETURNING` - so avoid relying on inferred multi-row IDs for a table under heavy concurrent insert load, or set `innodb_autoinc_lock_mode` to 0 or 1.
+:::
 
 Records in one `insertMany` batch may provide different subsets of columns: the statement uses the union of columns, and missing cells fall back to the database default (`DEFAULT` keyword; `NULL` on SQLite, which also triggers its auto-generated keys). Batches larger than the dialect's bind-parameter limit are split into multiple statements automatically; wrap the call in a [transaction](/querying/transactions) if all-or-nothing behavior matters across such splits.
 
@@ -273,4 +277,8 @@ ON DUPLICATE KEY UPDATE `name` = VALUES(`name`)
 
 :::note[Insert-vs-update detection]
 The result's `created` field (see [Raw SQL](/querying/raw-sql#run)) reports `true`/`false` on Postgres and MySQL only. CockroachDB has no equivalent to Postgres's `xmax` system column, so `created` is always `undefined` there - `upsertOne`/`upsertMany` themselves work the same as everywhere else.
+:::
+
+:::note[upsertMany IDs]
+On `RETURNING`-based dialects (Postgres, CockroachDB, MariaDB, SQLite and its variants), `ids`/`firstId` are exact for every row regardless of insert or update. MySQL has no `RETURNING`, so its `ON DUPLICATE KEY UPDATE` `affectedRows` convention (1=insert, 2=update) only unambiguously identifies a single row - `upsertOne` still reports `ids`/`firstId`/`created`, but a multi-row `upsertMany` batch reports only `changes`, since the moment more than one row is touched `affectedRows` becomes a weighted sum that can't be split back into per-row values without fabricating them. On MongoDB, `ids` only covers documents `bulkWrite` actually inserted - a matched-and-updated document's `_id` isn't in that response, so it's simply absent from `ids` rather than guessed.
 :::

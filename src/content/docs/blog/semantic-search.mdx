@@ -82,16 +82,18 @@ For Postgres, UQL automatically emits `CREATE EXTENSION IF NOT EXISTS vector`. M
 Project the computed distance into your results with `$project`, without computing the distance twice:
 
 ```ts
-const results = await querier.findMany(Article, {
-  $select: { id: true, title: true },
-  $sort: { embedding: { $vector: queryVec, $distance: 'cosine', $project: 'similarity' } },
-  $limit: 10,
-});
+import type { WithDistance } from 'uql-orm';
 
-results[0].similarity;
+const results = (await querier.findMany(Article, {
+  $select: { id: true, title: true },
+  $sort: { embedding: { $vector: queryVec, $distance: 'cosine', $project: 'distance' } },
+  $limit: 10,
+})) as WithDistance<Article, 'distance'>[];
+
+results[0].distance;
 ```
 
-UQL auto infers the projected field from the `$project` literal, so `results` is typed `(Article & { similarity: number })[]`: your IDE autocompletes `similarity` and typos are caught at compile time, no cast needed.
+Annotate the result with the exported `WithDistance<Article, 'distance'>` helper to type the projected `distance` field.
 
 ### 5 Distance Metrics
 

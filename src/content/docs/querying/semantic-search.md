@@ -171,30 +171,32 @@ Queries on this field will use `l2` unless overridden with `$distance` at query 
 Project the computed distance as a named field in the result with `$project`:
 
 ```ts title="You write"
-const results = await querier.findMany(Article, {
-  $select: { id: true, title: true },
-  $sort: { embedding: { $vector: queryVec, $distance: 'cosine', $project: 'similarity' } },
-  $limit: 10,
-});
+import type { WithDistance } from 'uql-orm';
 
-results.forEach((r) => console.log(r.title, r.similarity));
+const results = (await querier.findMany(Article, {
+  $select: { id: true, title: true },
+  $sort: { embedding: { $vector: queryVec, $distance: 'cosine', $project: 'distance' } },
+  $limit: 10,
+})) as WithDistance<Article, 'distance'>[];
+
+results.forEach((r) => console.log(r.title, r.distance));
 ```
 
 ```sql title="Generated SQL (PostgreSQL / CockroachDB)"
-SELECT "id", "title", "embedding" <=> $1::vector AS "similarity" FROM "Article"
-ORDER BY "similarity"
+SELECT "id", "title", "embedding" <=> $1::vector AS "distance" FROM "Article"
+ORDER BY "distance"
 LIMIT 10
 ```
 
 ```sql title="Generated SQL (MariaDB)"
-SELECT `id`, `title`, VEC_DISTANCE_COSINE(`embedding`, ?) AS `similarity` FROM `Article`
-ORDER BY `similarity`
+SELECT `id`, `title`, VEC_DISTANCE_COSINE(`embedding`, ?) AS `distance` FROM `Article`
+ORDER BY `distance`
 LIMIT 10
 ```
 
 ```sql title="Generated SQL (SQLite)"
-SELECT `id`, `title`, vec_distance_cosine(`embedding`, ?) AS `similarity` FROM `Article`
-ORDER BY `similarity`
+SELECT `id`, `title`, vec_distance_cosine(`embedding`, ?) AS `distance` FROM `Article`
+ORDER BY `distance`
 LIMIT 10
 ```
 
@@ -203,12 +205,12 @@ For MongoDB, `$project` adds a `$meta: 'vectorSearchScore'` projection:
 ```json title="Generated Pipeline (MongoDB Atlas)"
 [
   { "$vectorSearch": { "index": "embedding_index", "path": "embedding", "queryVector": ["..."], "numCandidates": 100, "limit": 10 } },
-  { "$project": { "id": true, "title": true, "similarity": { "$meta": "vectorSearchScore" } } }
+  { "$project": { "id": true, "title": true, "distance": { "$meta": "vectorSearchScore" } } }
 ]
 ```
 
 :::tip[Type Safety]
-UQL reads the `$project` literal and automatically adds a typed `similarity: number` property to each result, so `r.similarity` autocompletes and typos are caught at compile time, no cast needed. For a query whose `$project` key is computed at runtime (not a literal), annotate the result with the exported `WithDistance<Article, 'similarity'>` helper.
+Find methods return the plain entity, so annotate the result with the exported `WithDistance<Article, 'distance'>` helper to type the projected `distance` field.
 :::
 
 :::note[Performance]

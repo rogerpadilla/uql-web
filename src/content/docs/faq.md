@@ -210,16 +210,18 @@ npx uql-migrate up
 ### How does vector search work?
 
 ```ts
+import type { WithDistance } from 'uql-orm';
+
 const results = await querier.findMany(Article, {
   $sort: {
     embedding: {
       $vector: queryEmbedding,
       $distance: 'cosine',
-      $project: 'similarity'
+      $project: 'distance'
     }
   },
   $limit: 10
-});
+}) as WithDistance<Article, 'distance'>[];
 ```
 
 Works on PostgreSQL (pgvector), CockroachDB, MariaDB, SQLite (sqlite-vec), and MongoDB Atlas, all with the same query syntax. See [Semantic Search](/querying/semantic-search).
